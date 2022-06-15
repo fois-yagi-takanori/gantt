@@ -1,4 +1,4 @@
-export declare type Language = 'ptBr' | 'ru' | 'en' | 'fr' | 'es' | 'tr' | 'zh';
+export declare type Language = 'ja';
 declare const _default: {
     parse(date: String | Date, date_separator?: string, time_separator?: RegExp): Date | null;
     toString(date: Date, with_time?: boolean): string;
