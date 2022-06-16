@@ -1422,7 +1422,7 @@ var Gantt = (function () {
             });
         }
         makeColumnsGridHeader() {
-            const headerWidth = this.options.columnNames.length * this.options.columnWidth;
+            const headerWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
             const headerHeight = this.options.headerHeight + 10;
             createSVG('rect', {
                 x: 0,
