@@ -61,10 +61,6 @@
   fill: #555;
   text-anchor: start;
 }
-.gantt .handle-group.visible .handle {
-  visibility: visible;
-  opacity: 1;
-}
 .gantt .handle {
   fill: #ddd;
   cursor: ew-resize;
@@ -81,6 +77,10 @@
 }
 .gantt .bar-wrapper:hover .bar-progress {
   fill: #8a8aff;
+}
+.gantt .bar-wrapper:hover .handle {
+  visibility: visible;
+  opacity: 1;
 }
 .gantt .bar-wrapper.active .bar {
   fill: #a9b5c1;
@@ -103,9 +103,12 @@
 }
 
 .gantt-container {
-  position: relative;
+  display: inline;
+  position: absolute;
+  left: 351px;
   overflow: auto;
   font-size: 12px;
+  width: 1000px;
 }
 .gantt-container .popup-wrapper {
   position: absolute;
@@ -130,4 +133,9 @@
   margin: 0 0 0 -5px;
   border: 5px solid transparent;
   border-top-color: rgba(0, 0, 0, 0.8);
+}
+
+.columns_svg {
+  left: 50px;
+  width: 300px;
 }

@@ -43,6 +43,8 @@ export interface Options {
     customPopupHtml?: string | null;
     popupTrigger: string;
     language: Language;
+    columnNames: string[];
+    columnWidthForColumns: number;
     onClick?: (task: ResolvedTask) => void;
     onDateChange?: (task: ResolvedTask, startDate: Date, endDate: Date) => void;
     onProgressChange?: (task: ResolvedTask, progress: number) => void;
@@ -58,7 +60,9 @@ interface DateInfo {
 }
 export default class Gantt {
     private $svg;
+    private $columnSvg;
     private $container;
+    private $columnContainer;
     private popupWrapper;
     options: Options;
     private tasks;
@@ -68,6 +72,7 @@ export default class Gantt {
     private dates;
     barBeingDragged?: string;
     private layers;
+    private columnLayers;
     private bars;
     private arrows;
     private popup;
@@ -98,6 +103,7 @@ export default class Gantt {
     makeGridBackground(): void;
     makeGridRows(): void;
     makeGridHeader(): void;
+    makeColumnsGridHeader(): void;
     makeGridTicks(): void;
     makeGridHighlights(): void;
     makeDates(): void;

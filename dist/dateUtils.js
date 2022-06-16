@@ -19,7 +19,7 @@ const monthNames = {
         '10月',
         '11月',
         '12月',
-    ]
+    ],
 };
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
 function padStart(maybeStr, targetLength, padString) {

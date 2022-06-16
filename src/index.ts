@@ -51,6 +51,8 @@ export interface Options {
   customPopupHtml?: string | null,
   popupTrigger: string,
   language: Language,
+  columnNames: string[],
+  columnWidthForColumns: number,
   onClick?: (task: ResolvedTask) => void,
   onDateChange?: (task: ResolvedTask, startDate: Date, endDate: Date) => void,
   onProgressChange?: (task: ResolvedTask, progress: number) => void,
@@ -76,10 +78,9 @@ const VIEW_MODE: {
 function generateId(task: ResolvedTask): string {
   return (
     `${task.name
-    }_${
-      Math.random()
-        .toString(36)
-        .slice(2, 12)}`
+    }_${Math.random()
+      .toString(36)
+      .slice(2, 12)}`
   );
 }
 
@@ -95,7 +96,11 @@ interface DateInfo {
 export default class Gantt {
   private $svg: SVGElement;
 
+  private $columnSvg: SVGElement;
+
   private $container: HTMLDivElement;
+
+  private $columnContainer: HTMLDivElement;
 
   private popupWrapper: HTMLDivElement;
 
@@ -114,6 +119,8 @@ export default class Gantt {
   public barBeingDragged?: string;
 
   private layers: Record<string, SVGElement>;
+
+  private columnLayers: Record<string, SVGElement>;
 
   private bars: Bar[];
 
@@ -161,7 +168,7 @@ export default class Gantt {
     } else {
       throw new TypeError(
         'Frappé Gantt only supports usage of a string CSS selector,'
-                + ' HTML DOM element or SVG DOM element for the \'element\' parameter',
+        + ' HTML DOM element or SVG DOM element for the \'element\' parameter',
       );
     }
 
@@ -172,17 +179,31 @@ export default class Gantt {
         append_to: wrapperElement,
         class: 'gantt',
       });
+
+      this.$columnSvg = createSVG('svg', {
+        append_to: wrapperElement,
+        class: 'gantt',
+        width: 400,
+        id: 'columnSvg',
+      });
     } else {
       this.$svg = svgElement;
       this.$svg.classList.add('gantt');
+      this.$columnSvg = svgElement;
+      this.$columnSvg.classList.add('gantt');
     }
 
     // wrapper element
     this.$container = document.createElement('div');
     this.$container.classList.add('gantt-container');
+    this.$columnContainer = document.createElement('div');
+    this.$columnContainer.classList.add('gantt-container');
+    this.$columnContainer.classList.add('columns_svg');
 
-    const { parentElement } = this.$svg;
+    const { parentElement } = this.$svg.parentElement;
+    parentElement.appendChild(this.$columnContainer);
     parentElement.appendChild(this.$container);
+    this.$columnContainer.appendChild(this.$columnSvg);
     this.$container.appendChild(this.$svg);
 
     // popup wrapper
@@ -205,7 +226,9 @@ export default class Gantt {
       dateFormat: 'YYYY-MM-DD',
       popupTrigger: 'click',
       customPopupHtml: null,
-      language: 'en',
+      language: 'ja',
+      columnNames: new Array<string>(),
+      columnWidthForColumns: 120,
     };
     this.options = { ...defaultOptions, ...options };
   }
@@ -369,14 +392,14 @@ export default class Gantt {
         this.ganttStart = task.startResolved;
       }
       if (task.plannedStartResolved
-                && (!this.ganttStart || task.plannedStartResolved > this.ganttStart)) {
+        && (!this.ganttStart || task.plannedStartResolved > this.ganttStart)) {
         this.ganttStart = task.plannedStartResolved;
       }
       if (!this.ganttEnd || task.endResolved > this.ganttEnd) {
         this.ganttEnd = task.endResolved;
       }
       if (task.plannedEndResolved
-                && (!this.ganttEnd || task.plannedEndResolved > this.ganttEnd)) {
+        && (!this.ganttEnd || task.plannedEndResolved > this.ganttEnd)) {
         this.ganttEnd = task.plannedEndResolved;
       }
     });
@@ -441,12 +464,19 @@ export default class Gantt {
 
   setupLayers(): void {
     this.layers = {};
+    this.columnLayers = {};
     const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+
     // make group layers
     layers.forEach((layer) => {
       this.layers[layer] = createSVG('g', {
         class: layer,
         append_to: this.$svg,
+      });
+
+      this.columnLayers[layer] = createSVG('g', {
+        class: layer,
+        append_to: this.$columnSvg,
       });
     });
   }
@@ -455,16 +485,27 @@ export default class Gantt {
     this.makeGridBackground();
     this.makeGridRows();
     this.makeGridHeader();
+    this.makeColumnsGridHeader();
     this.makeGridTicks();
     this.makeGridHighlights();
   }
 
   makeGridBackground(): void {
     const gridWidth = this.dates.length * this.options.columnWidth;
+    const columnGridWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
     const gridHeight = this.options.headerHeight
-            + this.options.padding
-            + (this.options.barHeight + this.options.padding)
-            * this.tasks.length;
+      + this.options.padding
+      + (this.options.barHeight + this.options.padding)
+      * this.tasks.length;
+
+    createSVG('rect', {
+      x: 0,
+      y: 0,
+      width: columnGridWidth,
+      height: gridHeight,
+      class: 'grid-background',
+      append_to: this.layers.grid,
+    });
 
     createSVG('rect', {
       x: 0,
@@ -472,21 +513,29 @@ export default class Gantt {
       width: gridWidth,
       height: gridHeight,
       class: 'grid-background',
-      append_to: this.layers.grid,
+      append_to: this.columnLayers.grid,
     });
 
     $.attr(this.$svg, {
       height: gridHeight + this.options.padding + 100,
       width: '100%',
     });
+
+    $.attr(this.$columnSvg, {
+      height: gridHeight + this.options.padding + 100,
+      width: columnGridWidth,
+    });
   }
 
   makeGridRows(): void {
     const rowsLayer = createSVG('g', { append_to: this.layers.grid });
     const linesLayer = createSVG('g', { append_to: this.layers.grid });
+    const columnsRowsLayer = createSVG('g', { append_to: this.columnLayers.grid });
+    const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
 
     const rowWidth = this.dates.length * this.options.columnWidth;
     const rowHeight = this.options.barHeight + this.options.padding;
+    const columnRowWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
 
     let rowY = this.options.headerHeight + this.options.padding / 2;
 
@@ -499,14 +548,31 @@ export default class Gantt {
         class: 'grid-row',
         append_to: rowsLayer,
       });
+      task.gridRow = createSVG('rect', {
+        x: 0,
+        y: rowY,
+        width: columnRowWidth,
+        height: rowHeight,
+        class: 'grid-row',
+        append_to: columnsRowsLayer,
+      });
 
-      createSVG('line', {
+      task.gridRow = createSVG('line', {
         x1: 0,
         y1: rowY + rowHeight,
         x2: rowWidth,
         y2: rowY + rowHeight,
         class: 'row-line',
         append_to: linesLayer,
+      });
+
+      task.gridRow = createSVG('line', {
+        x1: 0,
+        y1: rowY + rowHeight,
+        x2: columnRowWidth,
+        y2: rowY + rowHeight,
+        class: 'row-line',
+        append_to: columnsLinesLayer,
       });
 
       rowY += this.options.barHeight + this.options.padding;
@@ -526,11 +592,24 @@ export default class Gantt {
     });
   }
 
+  makeColumnsGridHeader(): void {
+    const headerWidth = this.options.columnNames.length * this.options.columnWidth;
+    const headerHeight = this.options.headerHeight + 10;
+    createSVG('rect', {
+      x: 0,
+      y: 0,
+      width: headerWidth,
+      height: headerHeight,
+      class: 'grid-header',
+      append_to: this.columnLayers.grid,
+    });
+  }
+
   makeGridTicks(): void {
     let tickX = 0;
     const tickY = this.options.headerHeight + this.options.padding / 2;
     const tickHeight = (this.options.barHeight + this.options.padding)
-            * this.tasks.length;
+      * this.tasks.length;
 
     this.dates.forEach((date) => {
       let tickClass = 'tick';
@@ -541,8 +620,8 @@ export default class Gantt {
       // thick tick for first week
       if (
         this.viewIs(VIEW_MODE.WEEK)
-                && date.getDate() >= 1
-                && date.getDate() < 8
+        && date.getDate() >= 1
+        && date.getDate() < 8
       ) {
         tickClass += ' thick';
       }
@@ -559,9 +638,9 @@ export default class Gantt {
 
       if (this.viewIs(VIEW_MODE.MONTH)) {
         tickX
-                    += (dateUtils.getDaysInMonth(date)
-                        * this.options.columnWidth)
-                    / 30;
+          += (dateUtils.getDaysInMonth(date)
+            * this.options.columnWidth)
+          / 30;
       } else {
         tickX += this.options.columnWidth;
       }
@@ -572,15 +651,15 @@ export default class Gantt {
     // highlight today's date
     if (this.viewIs(VIEW_MODE.DAY)) {
       const x = (dateUtils.diff(dateUtils.today(), this.ganttStart, 'hour')
-                    / this.options.step)
-                * this.options.columnWidth;
+        / this.options.step)
+        * this.options.columnWidth;
       const y = 0;
 
       const width = this.options.columnWidth;
       const height = (this.options.barHeight + this.options.padding)
-                * this.tasks.length
-                + this.options.headerHeight
-                + this.options.padding / 2;
+        * this.tasks.length
+        + this.options.headerHeight
+        + this.options.padding / 2;
 
       createSVG('rect', {
         x,
@@ -621,6 +700,36 @@ export default class Gantt {
         }
       }
     }
+
+    let x = 60;
+    this.options.columnNames.forEach((column) => {
+      createSVG('text', {
+        x,
+        y: 50,
+        innerHTML: column,
+        class: 'lower-text',
+        append_to: this.columnLayers.date,
+      });
+      x += 120;
+    });
+
+    this.tasks.forEach((task) => {
+      const posY = 15
+        + this.options.headerHeight
+        + this.options.padding
+        + task.indexResolved * (this.options.barHeight + this.options.padding);
+      x = 60;
+      this.options.columnNames.forEach(() => {
+        createSVG('text', {
+          x,
+          y: posY,
+          innerHTML: ((String(task.customClass).slice(0, 25)) + (String(task).length > 25 ? '...' : '')),
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+        x += 120;
+      });
+    });
   }
 
   getDatesToDraw(): DateInfo[] {
@@ -649,42 +758,42 @@ export default class Gantt {
         this.options.language,
       ),
       Day_lower:
-                date.getDate() !== lastDate.getDate()
-                  ? dateUtils.format(date, 'D', this.options.language)
-                  : '',
+        date.getDate() !== lastDate.getDate()
+          ? dateUtils.format(date, 'D', this.options.language)
+          : '',
       Week_lower:
-                date.getMonth() !== lastDate.getMonth()
-                  ? dateUtils.format(date, 'D MMM', this.options.language)
-                  : dateUtils.format(date, 'D', this.options.language),
+        date.getMonth() !== lastDate.getMonth()
+          ? dateUtils.format(date, 'D MMM', this.options.language)
+          : dateUtils.format(date, 'D', this.options.language),
       Month_lower: dateUtils.format(date, 'MMMM', this.options.language),
       Year_lower: dateUtils.format(date, 'YYYY', this.options.language),
       'Quarter Day_upper':
-                date.getDate() !== lastDate.getDate()
-                  ? dateUtils.format(date, 'D MMM', this.options.language)
-                  : '',
+        date.getDate() !== lastDate.getDate()
+          ? dateUtils.format(date, 'D MMM', this.options.language)
+          : '',
       'Half Day_upper':
-      // eslint-disable-next-line no-nested-ternary
-                date.getDate() !== lastDate.getDate()
-                  ? date.getMonth() !== lastDate.getMonth()
-                    ? dateUtils.format(date, 'D MMM', this.options.language)
-                    : dateUtils.format(date, 'D', this.options.language)
-                  : '',
+        // eslint-disable-next-line no-nested-ternary
+        date.getDate() !== lastDate.getDate()
+          ? date.getMonth() !== lastDate.getMonth()
+            ? dateUtils.format(date, 'D MMM', this.options.language)
+            : dateUtils.format(date, 'D', this.options.language)
+          : '',
       Day_upper:
-                date.getMonth() !== lastDate.getMonth()
-                  ? dateUtils.format(date, 'MMMM', this.options.language)
-                  : '',
+        date.getMonth() !== lastDate.getMonth()
+          ? dateUtils.format(date, 'MMMM', this.options.language)
+          : '',
       Week_upper:
-                date.getMonth() !== lastDate.getMonth()
-                  ? dateUtils.format(date, 'MMMM', this.options.language)
-                  : '',
+        date.getMonth() !== lastDate.getMonth()
+          ? dateUtils.format(date, 'MMMM', this.options.language)
+          : '',
       Month_upper:
-                date.getFullYear() !== lastDate.getFullYear()
-                  ? dateUtils.format(date, 'YYYY', this.options.language)
-                  : '',
+        date.getFullYear() !== lastDate.getFullYear()
+          ? dateUtils.format(date, 'YYYY', this.options.language)
+          : '',
       Year_upper:
-                date.getFullYear() !== lastDate.getFullYear()
-                  ? dateUtils.format(date, 'YYYY', this.options.language)
-                  : '',
+        date.getFullYear() !== lastDate.getFullYear()
+          ? dateUtils.format(date, 'YYYY', this.options.language)
+          : '',
     };
 
     const basePos = {
@@ -751,7 +860,7 @@ export default class Gantt {
       // eslint-disable-next-line no-param-reassign
       bar.arrows = this.arrows.filter((arrow) => (
         arrow.fromTask.task.id === bar.task.id
-                || arrow.toTask.task.id === bar.task.id
+        || arrow.toTask.task.id === bar.task.id
       ));
     });
   }
@@ -777,9 +886,9 @@ export default class Gantt {
     );
 
     parentElement.scrollLeft = (hoursBeforeFirstTask
-                / this.options.step)
-            * this.options.columnWidth
-            - this.options.columnWidth;
+      / this.options.step)
+      * this.options.columnWidth
+      - this.options.columnWidth;
   }
 
   bindGridClick(): void {
@@ -975,24 +1084,24 @@ export default class Gantt {
     if (this.viewIs(VIEW_MODE.WEEK)) {
       rem = dx % (this.options.columnWidth / 7);
       position = odx
-                - rem
-                + (rem < this.options.columnWidth / 14
-                  ? 0
-                  : this.options.columnWidth / 7);
+        - rem
+        + (rem < this.options.columnWidth / 14
+          ? 0
+          : this.options.columnWidth / 7);
     } else if (this.viewIs(VIEW_MODE.MONTH)) {
       rem = dx % (this.options.columnWidth / 30);
       position = odx
-                - rem
-                + (rem < this.options.columnWidth / 60
-                  ? 0
-                  : this.options.columnWidth / 30);
+        - rem
+        + (rem < this.options.columnWidth / 60
+          ? 0
+          : this.options.columnWidth / 30);
     } else {
       rem = dx % this.options.columnWidth;
       position = odx
-                - rem
-                + (rem < this.options.columnWidth / 2
-                  ? 0
-                  : this.options.columnWidth);
+        - rem
+        + (rem < this.options.columnWidth / 2
+          ? 0
+          : this.options.columnWidth);
     }
     return position;
   }
