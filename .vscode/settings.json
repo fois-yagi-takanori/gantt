@@ -1,0 +1,16 @@
+{
+  "[typescript]": {
+      "editor.defaultFormatter": "vscode.typescript-language-features" // フォーマッタをprettierに指定
+  },
+  "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true // ファイル保存時にESLintでフォーマット
+  },
+  "[html]": {
+    "editor.defaultFormatter": "HookyQR.beautify",
+    "editor.formatOnSave": true
+  },
+  "files.exclude": {
+    "node_modules/**": true, // npmパッケージ
+    "dist/**": true // リリースモジュール
+  }
+}

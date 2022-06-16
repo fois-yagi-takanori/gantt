@@ -3,6 +3,7 @@ import { $, createSVG } from './svgUtils';
 import Bar from './bar';
 import Arrow from './arrow';
 import Popup, { PopupOptions } from './popup';
+import * as stringUtils from './utils/string.utils';
 
 // eslint-disable-next-line import/no-useless-path-segments
 import '../src/gantt.scss';
@@ -33,6 +34,7 @@ export interface ResolvedTask extends Task {
   plannedEndResolved?: Date;
   hasPlanned: boolean;
   gridRow?: SVGElement;
+  [prop: string]: unknown;
 }
 
 export type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
@@ -257,6 +259,7 @@ export default class Gantt {
         hasPlanned: false,
         indexResolved: i,
         dependencies,
+        columnNames: this.options.columnNames,
       };
 
       // make task invalid if duration too large
@@ -713,17 +716,17 @@ export default class Gantt {
       x += 120;
     });
 
-    this.tasks.forEach((task) => {
+    this.tasks.forEach((task: ResolvedTask) => {
       const posY = 15
         + this.options.headerHeight
         + this.options.padding
         + task.indexResolved * (this.options.barHeight + this.options.padding);
       x = 60;
-      this.options.columnNames.forEach(() => {
+      this.options.columnNames.forEach((column) => {
         createSVG('text', {
           x,
           y: posY,
-          innerHTML: ((String(task.customClass).slice(0, 25)) + (String(task).length > 25 ? '...' : '')),
+          innerHTML: stringUtils.getDefaultString(String(task[column])),
           class: 'lower-text',
           append_to: this.columnLayers.date,
         });

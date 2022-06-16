@@ -3,6 +3,7 @@ import { $, createSVG } from './svgUtils';
 import Bar from './bar';
 import Arrow from './arrow';
 import Popup from './popup';
+import * as stringUtils from './utils/string.utils';
 // eslint-disable-next-line import/no-useless-path-segments
 import '../src/gantt.scss';
 const VIEW_MODE = {
@@ -124,7 +125,7 @@ export default class Gantt {
             else {
                 dependencies = [];
             }
-            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.start), endResolved: dateUtils.parse(task.end), hasPlanned: false, indexResolved: i, dependencies });
+            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.start), endResolved: dateUtils.parse(task.end), hasPlanned: false, indexResolved: i, dependencies, columnNames: this.options.columnNames });
             // make task invalid if duration too large
             if (dateUtils.diff(resolvedTask.endResolved, resolvedTask.startResolved, 'year') > 10) {
                 resolvedTask.end = null;
@@ -529,11 +530,11 @@ export default class Gantt {
                 + this.options.padding
                 + task.indexResolved * (this.options.barHeight + this.options.padding);
             x = 60;
-            this.options.columnNames.forEach(() => {
+            this.options.columnNames.forEach((column) => {
                 createSVG('text', {
                     x,
                     y: posY,
-                    innerHTML: ((String(task.customClass).slice(0, 25)) + (String(task).length > 25 ? '...' : '')),
+                    innerHTML: stringUtils.getDefaultString(String(task[column])),
                     class: 'lower-text',
                     append_to: this.columnLayers.date,
                 });

@@ -982,6 +982,33 @@ var Gantt = (function () {
         }
     }
 
+    /**
+     * 文字列の判定処理
+     *  NULL,空文字、未定義
+     *
+     * @param str 対象文字列
+     * @returns
+     */
+    function isNullOrEmpty(str) {
+        return str === null || str === '' || str === undefined || String(str) === 'undefined';
+    }
+    /**
+     * 対象文字列がNULLであれば、デフォルト文字列を返却
+     *
+     * @param targetStr
+     * @param defaultStr
+     * @returns
+     */
+    function getDefaultString(targetStr, defaultStr) {
+        if (!isNullOrEmpty(targetStr)) {
+            return targetStr;
+        }
+        if (isNullOrEmpty(defaultStr)) {
+            return '';
+        }
+        return defaultStr;
+    }
+
     const VIEW_MODE = {
         QUARTER_DAY: 'Quarter Day',
         HALF_DAY: 'Half Day',
@@ -1101,7 +1128,7 @@ var Gantt = (function () {
                 else {
                     dependencies = [];
                 }
-                const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.start), endResolved: dateUtils.parse(task.end), hasPlanned: false, indexResolved: i, dependencies });
+                const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.start), endResolved: dateUtils.parse(task.end), hasPlanned: false, indexResolved: i, dependencies, columnNames: this.options.columnNames });
                 // make task invalid if duration too large
                 if (dateUtils.diff(resolvedTask.endResolved, resolvedTask.startResolved, 'year') > 10) {
                     resolvedTask.end = null;
@@ -1506,11 +1533,11 @@ var Gantt = (function () {
                     + this.options.padding
                     + task.indexResolved * (this.options.barHeight + this.options.padding);
                 x = 60;
-                this.options.columnNames.forEach(() => {
+                this.options.columnNames.forEach((column) => {
                     createSVG('text', {
                         x,
                         y: posY,
-                        innerHTML: ((String(task.customClass).slice(0, 25)) + (String(task).length > 25 ? '...' : '')),
+                        innerHTML: getDefaultString(String(task[column])),
                         class: 'lower-text',
                         append_to: this.columnLayers.date,
                     });
