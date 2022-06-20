@@ -7,7 +7,6 @@ export interface ResolvedTask extends Task {
     startResolved: Date;
     plannedStartResolved?: Date;
     plannedEndResolved?: Date;
-    hasPlanned: boolean;
     gridRow?: SVGElement;
     [prop: string]: unknown;
 }

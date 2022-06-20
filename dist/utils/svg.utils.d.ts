@@ -1,3 +1,8 @@
+/**
+ *
+ * @param expr
+ * @param con
+ */
 export declare function $(expr: string | Element, con?: Element): Element;
 export declare namespace $ {
     var on: (element: Element, event: string, selector: string | EventListenerOrEventListenerObject, callback?: EventListenerOrEventListenerObject) => void;
@@ -10,5 +15,17 @@ export declare namespace $ {
 export declare type CreateSVGAttrs = Record<string, string | number | Element> & {
     append_to?: Element;
 };
+/**
+ *
+ * @param tag
+ * @param attrs
+ */
 export declare function createSVG(tag: string, attrs: CreateSVGAttrs): SVGElement;
+/**
+ *
+ * @param svgElement
+ * @param attr
+ * @param from
+ * @param to
+ */
 export declare function animateSVG(svgElement: SVGElement, attr: string, from: number, to: number): void;

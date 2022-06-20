@@ -17,7 +17,7 @@
       ],
       "parserOptions": {
         "project": [
-          "tsconfig.json"
+          "../tsconfig.json"
         ],
         "createDefaultProgram": true,
         "ecmaVersion": 2020, 

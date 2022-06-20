@@ -59,6 +59,7 @@
     "eslint-plugin-jsdoc": "^39.3.3",
     "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
     "eslint-plugin-unused-imports": "^2.0.0",
-    "rollup-plugin-import-css": "^3.0.3"
+    "rollup-plugin-import-css": "^3.0.3",
+    "split.js": "^1.6.5"
   }
 }

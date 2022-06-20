@@ -1,11 +1,11 @@
-import dateUtils from './utils/date.utils';
-import { $, createSVG } from './utils/svg.utils';
-import Bar from './app/bar';
-import Arrow from './app/arrow';
-import Popup from './app/popup';
-import * as stringUtils from './utils/string.utils';
-// eslint-disable-next-line import/no-useless-path-segments
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../src/gantt.scss';
+import * as stringUtils from './utils/string.utils';
+import { $, createSVG } from './utils/svg.utils';
+import Arrow from './app/arrow';
+import Bar from './app/bar';
+import Popup from './app/popup';
+import dateUtils from './utils/date.utils';
 const VIEW_MODE = {
     QUARTER_DAY: 'Quarter Day',
     HALF_DAY: 'Half Day',
@@ -14,12 +14,27 @@ const VIEW_MODE = {
     MONTH: 'Month',
     YEAR: 'Year',
 };
+/**
+ *
+ * @param task
+ */
 function generateId(task) {
     return (`${task.name}_${Math.random()
         .toString(36)
         .slice(2, 12)}`);
 }
+/**
+ *
+ */
 export default class Gantt {
+    /**
+     * コンストラクタ
+     *
+     * @param {(string | HTMLElement | SVGElement | unknown)} wrapper - ラッパー
+     * @param {Task[]} tasks - タスク一覧
+     * @param {Options} options - オプション
+     * @memberof Gantt
+     */
     constructor(wrapper, tasks, options) {
         this.setupWrapper(wrapper);
         this.setupOptions(options);
@@ -29,6 +44,12 @@ export default class Gantt {
         this.changeViewMode();
         this.bindEvents();
     }
+    /**
+     * 大枠作成
+     *
+     * @param {(string | HTMLElement | SVGElement | unknown)} elementReference
+     * @memberof Gantt
+     */
     setupWrapper(elementReference) {
         let svgElement;
         let wrapperElement;
@@ -52,6 +73,7 @@ export default class Gantt {
             throw new TypeError('Frappé Gantt only supports usage of a string CSS selector,'
                 + ' HTML DOM element or SVG DOM element for the \'element\' parameter');
         }
+        wrapperElement.classList.add('split');
         // svg element
         if (!svgElement) {
             // create it
@@ -75,9 +97,11 @@ export default class Gantt {
         // wrapper element
         this.$container = document.createElement('div');
         this.$container.classList.add('gantt-container');
+        this.$container.id = 'main-chart';
         this.$columnContainer = document.createElement('div');
         this.$columnContainer.classList.add('gantt-container');
         this.$columnContainer.classList.add('columns_svg');
+        this.$columnContainer.id = 'columns_svg';
         const { parentElement } = this.$svg.parentElement;
         parentElement.appendChild(this.$columnContainer);
         parentElement.appendChild(this.$container);
@@ -87,7 +111,13 @@ export default class Gantt {
         this.popupWrapper = document.createElement('div');
         this.popupWrapper.classList.add('popup-wrapper');
         this.$container.appendChild(this.popupWrapper);
+        wrapperElement.appendChild(this.$columnContainer);
+        wrapperElement.appendChild(this.$container);
     }
+    /**
+     *
+     * @param options
+     */
     setupOptions(options) {
         const defaultOptions = {
             headerHeight: 50,
@@ -109,6 +139,10 @@ export default class Gantt {
         };
         this.options = Object.assign(Object.assign({}, defaultOptions), options);
     }
+    /**
+     *
+     * @param tasks
+     */
     setupTasks(tasks) {
         // prepare tasks
         this.tasks = tasks.map((task, i) => {
@@ -126,7 +160,7 @@ export default class Gantt {
             else {
                 dependencies = [];
             }
-            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.planStartDate), endResolved: dateUtils.parse(task.planEndDate), hasPlanned: false, indexResolved: i, dependencies, columnNames: this.options.columnNames });
+            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.planStartDate), endResolved: dateUtils.parse(task.planEndDate), indexResolved: i, dependencies, columnNames: this.options.columnNames });
             // make task invalid if duration too large
             if (dateUtils.diff(resolvedTask.endResolved, resolvedTask.startResolved, 'year') > 10) {
                 resolvedTask.end = null;
@@ -176,6 +210,9 @@ export default class Gantt {
         });
         this.setupDependencies();
     }
+    /**
+     *
+     */
     setupDependencies() {
         this.dependencyMap = {};
         this.tasks.forEach((t) => {
@@ -185,10 +222,18 @@ export default class Gantt {
             });
         });
     }
+    /**
+     *
+     * @param tasks
+     */
     refresh(tasks) {
         this.setupTasks(tasks);
         this.changeViewMode();
     }
+    /**
+     *
+     * @param mode
+     */
     changeViewMode(mode = this.options.viewMode) {
         this.updateViewScale(mode);
         this.setupDates();
@@ -196,6 +241,10 @@ export default class Gantt {
         // fire viewmode_change event
         this.triggerEvent('ViewChange', [mode]);
     }
+    /**
+     *
+     * @param view_mode
+     */
     updateViewScale(view_mode) {
         this.options.viewMode = view_mode;
         switch (view_mode) {
@@ -228,10 +277,16 @@ export default class Gantt {
                 console.error(`Unknown view mode used: ${view_mode}`);
         }
     }
+    /**
+     *
+     */
     setupDates() {
         this.setupGanttDates();
         this.setupDateValues();
     }
+    /**
+     *
+     */
     setupGanttDates() {
         this.ganttStart = null;
         this.ganttEnd = null;
@@ -255,15 +310,15 @@ export default class Gantt {
         this.ganttStart = dateUtils.startOf(this.ganttStart, 'day');
         this.ganttEnd = dateUtils.startOf(this.ganttEnd, 'day');
         // add date padding on both sides
-        if (this.viewIs([VIEW_MODE.QUARTER_DAY, VIEW_MODE.HALF_DAY])) {
+        if (this.isView([VIEW_MODE.QUARTER_DAY, VIEW_MODE.HALF_DAY])) {
             this.ganttStart = dateUtils.add(this.ganttStart, -7, 'day');
             this.ganttEnd = dateUtils.add(this.ganttEnd, 7, 'day');
         }
-        else if (this.viewIs(VIEW_MODE.MONTH)) {
+        else if (this.isView(VIEW_MODE.MONTH)) {
             this.ganttStart = dateUtils.startOf(this.ganttStart, 'year');
             this.ganttEnd = dateUtils.add(this.ganttEnd, 1, 'year');
         }
-        else if (this.viewIs(VIEW_MODE.YEAR)) {
+        else if (this.isView(VIEW_MODE.YEAR)) {
             this.ganttStart = dateUtils.add(this.ganttStart, -2, 'year');
             this.ganttEnd = dateUtils.add(this.ganttEnd, 2, 'year');
         }
@@ -272,6 +327,9 @@ export default class Gantt {
             this.ganttEnd = dateUtils.add(this.ganttEnd, 1, 'month');
         }
     }
+    /**
+     *
+     */
     setupDateValues() {
         this.dates = [];
         let currentDate = null;
@@ -279,10 +337,10 @@ export default class Gantt {
             if (!currentDate) {
                 currentDate = dateUtils.clone(this.ganttStart);
             }
-            else if (this.viewIs(VIEW_MODE.YEAR)) {
+            else if (this.isView(VIEW_MODE.YEAR)) {
                 currentDate = dateUtils.add(currentDate, 1, 'year');
             }
-            else if (this.viewIs(VIEW_MODE.MONTH)) {
+            else if (this.isView(VIEW_MODE.MONTH)) {
                 currentDate = dateUtils.add(currentDate, 1, 'month');
             }
             else {
@@ -291,10 +349,16 @@ export default class Gantt {
             this.dates.push(currentDate);
         }
     }
+    /**
+     *
+     */
     bindEvents() {
         this.bindGridClick();
         this.bindBarEvents();
     }
+    /**
+     *
+     */
     render() {
         this.clear();
         this.setupLayers();
@@ -306,6 +370,9 @@ export default class Gantt {
         this.setWidth();
         this.setScrollPosition();
     }
+    /**
+     *
+     */
     setupLayers() {
         this.layers = {};
         this.columnLayers = {};
@@ -318,10 +385,13 @@ export default class Gantt {
             });
             this.columnLayers[layer] = createSVG('g', {
                 class: layer,
-                append_to: this.$columnSvg,
+                append_to: this.$columnSvg
             });
         });
     }
+    /**
+     *
+     */
     makeGrid() {
         this.makeGridBackground();
         this.makeGridRows();
@@ -330,6 +400,9 @@ export default class Gantt {
         this.makeGridTicks();
         this.makeGridHighlights();
     }
+    /**
+     *
+     */
     makeGridBackground() {
         const gridWidth = this.dates.length * this.options.columnWidth;
         const columnGridWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
@@ -355,13 +428,17 @@ export default class Gantt {
         });
         $.attr(this.$svg, {
             height: gridHeight + this.options.padding + 100,
-            width: '100%',
+            width: '100%'
         });
         $.attr(this.$columnSvg, {
             height: gridHeight + this.options.padding + 100,
             width: columnGridWidth,
         });
+        this.$container.style.left = `${columnGridWidth + 51}px`;
     }
+    /**
+     *
+     */
     makeGridRows() {
         const rowsLayer = createSVG('g', { append_to: this.layers.grid });
         const linesLayer = createSVG('g', { append_to: this.layers.grid });
@@ -407,6 +484,9 @@ export default class Gantt {
             rowY += this.options.barHeight + this.options.padding;
         });
     }
+    /**
+     *
+     */
     makeGridHeader() {
         const headerWidth = this.dates.length * this.options.columnWidth;
         const headerHeight = this.options.headerHeight + 10;
@@ -419,6 +499,9 @@ export default class Gantt {
             append_to: this.layers.grid,
         });
     }
+    /**
+     *
+     */
     makeColumnsGridHeader() {
         const headerWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
         const headerHeight = this.options.headerHeight + 10;
@@ -431,6 +514,9 @@ export default class Gantt {
             append_to: this.columnLayers.grid,
         });
     }
+    /**
+     *
+     */
     makeGridTicks() {
         let tickX = 0;
         const tickY = this.options.headerHeight + this.options.padding / 2;
@@ -439,17 +525,17 @@ export default class Gantt {
         this.dates.forEach((date) => {
             let tickClass = 'tick';
             // thick tick for monday
-            if (this.viewIs(VIEW_MODE.DAY) && date.getDate() === 1) {
+            if (this.isView(VIEW_MODE.DAY) && date.getDate() === 1) {
                 tickClass += ' thick';
             }
             // thick tick for first week
-            if (this.viewIs(VIEW_MODE.WEEK)
+            if (this.isView(VIEW_MODE.WEEK)
                 && date.getDate() >= 1
                 && date.getDate() < 8) {
                 tickClass += ' thick';
             }
             // thick ticks for quarters
-            if (this.viewIs(VIEW_MODE.MONTH) && (date.getMonth() + 1) % 3 === 0) {
+            if (this.isView(VIEW_MODE.MONTH) && (date.getMonth() + 1) % 3 === 0) {
                 tickClass += ' thick';
             }
             createSVG('path', {
@@ -457,7 +543,7 @@ export default class Gantt {
                 class: tickClass,
                 append_to: this.layers.grid,
             });
-            if (this.viewIs(VIEW_MODE.MONTH)) {
+            if (this.isView(VIEW_MODE.MONTH)) {
                 tickX
                     += (dateUtils.getDaysInMonth(date)
                         * this.options.columnWidth)
@@ -468,9 +554,12 @@ export default class Gantt {
             }
         });
     }
+    /**
+     *
+     */
     makeGridHighlights() {
         // highlight today's date
-        if (this.viewIs(VIEW_MODE.DAY)) {
+        if (this.isView(VIEW_MODE.DAY)) {
             const x = (dateUtils.diff(dateUtils.today(), this.ganttStart, 'hour')
                 / this.options.step)
                 * this.options.columnWidth;
@@ -490,6 +579,9 @@ export default class Gantt {
             });
         }
     }
+    /**
+     *
+     */
     makeDates() {
         for (let i = 0; i < this.getDatesToDraw().length; i += 1) {
             const date = this.getDatesToDraw()[i];
@@ -543,6 +635,9 @@ export default class Gantt {
             });
         });
     }
+    /**
+     *
+     */
     getDatesToDraw() {
         let lastDate = null;
         return this.dates.map((date, i) => {
@@ -551,6 +646,12 @@ export default class Gantt {
             return d;
         });
     }
+    /**
+     *
+     * @param date
+     * @param lastDate
+     * @param i
+     */
     getDateInfo(date, lastDate, i) {
         if (!lastDate) {
             // eslint-disable-next-line no-param-reassign
@@ -618,6 +719,9 @@ export default class Gantt {
             lower_y: basePos.lower_y,
         };
     }
+    /**
+     *
+     */
     makeBars() {
         this.bars = this.tasks.map((task) => {
             const bar = new Bar(this, task);
@@ -625,6 +729,9 @@ export default class Gantt {
             return bar;
         });
     }
+    /**
+     *
+     */
     makeArrows() {
         this.arrows = [];
         this.tasks.forEach((task) => {
@@ -642,6 +749,9 @@ export default class Gantt {
             this.arrows = this.arrows.concat(arrows);
         });
     }
+    /**
+     *
+     */
     mapArrowsOnBars() {
         this.bars.forEach((bar) => {
             // eslint-disable-next-line no-param-reassign
@@ -649,6 +759,9 @@ export default class Gantt {
                 || arrow.toTask.task.id === bar.task.id));
         });
     }
+    /**
+     *
+     */
     setWidth() {
         const currentWidth = this.$svg.getBoundingClientRect().width;
         const actualWidth = this.$svg
@@ -658,6 +771,9 @@ export default class Gantt {
             this.$svg.setAttribute('width', actualWidth);
         }
     }
+    /**
+     *
+     */
     setScrollPosition() {
         const { parentElement } = this.$svg;
         if (!parentElement)
@@ -668,12 +784,16 @@ export default class Gantt {
             * this.options.columnWidth
             - this.options.columnWidth;
     }
+    /**
+     *
+     */
     bindGridClick() {
         $.on(this.$svg, this.options.popupTrigger, '.grid-row, .grid-header', () => {
             this.unselectAll();
             this.hidePopup();
         });
     }
+    // eslint-disable-next-line max-lines-per-function
     bindBarEvents() {
         let isDragging = false;
         let xOnStart = 0;
@@ -695,7 +815,7 @@ export default class Gantt {
             else if (element.classList.contains('right')) {
                 isResizingRight = true;
             }
-            else if (element.classList.contains('bar') || element.classList.contains('bar-progress')) {
+            else if (element.classList.contains('bar-wrapper')) {
                 isDragging = true;
             }
             if (element.classList.contains('planned')) {
@@ -724,34 +844,30 @@ export default class Gantt {
                 return;
             const dx = e.offsetX - xOnStart;
             bars.forEach((bar) => {
-                var _a;
-                const $bar = draggingPlanned ? ((_a = bar.$plannedBar) !== null && _a !== void 0 ? _a : bar.$bar) : bar.$bar;
+                const $bar = bar.$bar;
                 $bar.finaldx = this.getSnapPosition(dx);
                 if (isResizingLeft) {
                     if (parentBarId === bar.task.id) {
                         bar.updateBarPosition({
                             x: $bar.ox + $bar.finaldx,
-                            width: $bar.owidth - $bar.finaldx,
-                            planned: draggingPlanned,
+                            width: $bar.owidth - $bar.finaldx
                         });
                     }
                     else {
                         bar.updateBarPosition({
-                            x: $bar.ox + $bar.finaldx,
-                            planned: draggingPlanned,
+                            x: $bar.ox + $bar.finaldx
                         });
                     }
                 }
                 else if (isResizingRight) {
                     if (parentBarId === bar.task.id) {
                         bar.updateBarPosition({
-                            width: $bar.owidth + $bar.finaldx,
-                            planned: draggingPlanned,
+                            width: $bar.owidth + $bar.finaldx
                         });
                     }
                 }
                 else if (isDragging) {
-                    bar.updateBarPosition({ x: $bar.ox + $bar.finaldx, planned: draggingPlanned });
+                    bar.updateBarPosition({ x: $bar.ox + $bar.finaldx });
                 }
             });
         });
@@ -767,8 +883,8 @@ export default class Gantt {
         $.on(this.$svg, 'mouseup', () => {
             this.barBeingDragged = null;
             bars.forEach((bar) => {
-                const { $bar, task, $plannedBar } = bar;
-                if (!$bar.finaldx && !(task.hasPlanned && $plannedBar.finaldx))
+                const $bar = bar.$bar;
+                if (!$bar.finaldx)
                     return;
                 bar.dateChanged();
                 bar.setActionCompleted();
@@ -776,6 +892,9 @@ export default class Gantt {
         });
         this.bindBarProgress();
     }
+    /**
+     *
+     */
     bindBarProgress() {
         let xOnStart = 0;
         let isResizing = null;
@@ -819,22 +938,29 @@ export default class Gantt {
             bar.setActionCompleted();
         });
     }
+    /**
+     *
+     * @param task_id
+     */
     getAllDependentTasks(task_id) {
         let out = [];
         let toProcess = [task_id];
         while (toProcess.length) {
             const deps = toProcess.reduce((acc, curr) => acc.concat(this.dependencyMap[curr]), []);
             out = out.concat(deps);
-            // eslint-disable-next-line @typescript-eslint/no-loop-func
             toProcess = deps.filter((d) => !toProcess.includes(d));
         }
         return out.filter(Boolean);
     }
+    /**
+     *
+     * @param dx
+     */
     getSnapPosition(dx) {
         const odx = dx;
         let rem;
         let position;
-        if (this.viewIs(VIEW_MODE.WEEK)) {
+        if (this.isView(VIEW_MODE.WEEK)) {
             rem = dx % (this.options.columnWidth / 7);
             position = odx
                 - rem
@@ -842,7 +968,7 @@ export default class Gantt {
                     ? 0
                     : this.options.columnWidth / 7);
         }
-        else if (this.viewIs(VIEW_MODE.MONTH)) {
+        else if (this.isView(VIEW_MODE.MONTH)) {
             rem = dx % (this.options.columnWidth / 30);
             position = odx
                 - rem
@@ -860,13 +986,20 @@ export default class Gantt {
         }
         return position;
     }
+    /**
+     *
+     */
     unselectAll() {
         Array.from(this.$svg.querySelectorAll('.bar-wrapper'))
             .forEach((el) => {
             el.classList.remove('active');
         });
     }
-    viewIs(modes) {
+    /**
+     *
+     * @param modes
+     */
+    isView(modes) {
         if (typeof modes === 'string') {
             return this.options.viewMode === modes;
         }
@@ -875,22 +1008,42 @@ export default class Gantt {
         }
         return false;
     }
+    /**
+     *
+     * @param id
+     */
     getTask(id) {
         return this.tasks.find((task) => task.id === id);
     }
+    /**
+     *
+     * @param id
+     */
     getBar(id) {
         return this.bars.find((bar) => bar.task.id === id);
     }
+    /**
+     *
+     * @param options
+     */
     showPopup(options) {
         if (!this.popup) {
             this.popup = new Popup(this.popupWrapper, this.options.customPopupHtml);
         }
         this.popup.show(options);
     }
+    /**
+     *
+     */
     hidePopup() {
         if (this.popup)
             this.popup.hide();
     }
+    /**
+     *
+     * @param event
+     * @param args
+     */
     triggerEvent(event, args) {
         var _a;
         // @ts-ignore
@@ -915,10 +1068,17 @@ export default class Gantt {
     clear() {
         this.$svg.innerHTML = '';
     }
+    /**
+     *
+     * @param sortFn
+     */
     setSortKey(sortFn) {
         this.sortKey = sortFn !== null && sortFn !== void 0 ? sortFn : ((a, b) => a.id.localeCompare(b.id));
         this.sortTasks();
     }
+    /**
+     *
+     */
     sortTasks() {
         const updatedTasks = this.tasks.sort(this.sortKey).map((task, newIndex) => {
             task.indexResolved = newIndex;

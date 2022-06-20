@@ -22,6 +22,12 @@ const monthNames = {
     ],
 };
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+/**
+ *
+ * @param maybeStr
+ * @param targetLength
+ * @param padString
+ */
 function padStart(maybeStr, targetLength, padString) {
     const str = `${maybeStr}`;
     let truncatedLength = Math.trunc(targetLength);
@@ -36,6 +42,12 @@ function padStart(maybeStr, targetLength, padString) {
     return paddedString.slice(0, truncatedLength) + String(str);
 }
 export default {
+    /**
+     *
+     * @param date
+     * @param date_separator
+     * @param time_separator
+     */
     parse(date, date_separator = '-', time_separator = /[.:]/) {
         if (date instanceof Date) {
             return date;
@@ -61,6 +73,11 @@ export default {
         }
         return null;
     },
+    /**
+     *
+     * @param date
+     * @param with_time
+     */
     toString(date, with_time = false) {
         if (!(date instanceof Date)) {
             throw new TypeError('Invalid argument type');
@@ -80,6 +97,12 @@ export default {
         const timeString = `${vals[3]}:${vals[4]}:${vals[5]}.${vals[6]}`;
         return dateString + (with_time ? ` ${timeString}` : '');
     },
+    /**
+     *
+     * @param date
+     * @param format_string
+     * @param lang
+     */
     format(date, format_string = 'YYYY-MM-DD HH:mm:ss.SSS', lang = 'ja') {
         if (!Object.keys(monthNames).includes(lang)) {
             throw new Error('Invalid Language');
@@ -112,6 +135,12 @@ export default {
         });
         return str;
     },
+    /**
+     *
+     * @param dateA
+     * @param dateB
+     * @param scale
+     */
     diff(dateA, dateB, scale = DAY) {
         const milliseconds = Number(dateA) - Number(dateB);
         const seconds = milliseconds / 1000;
@@ -134,14 +163,26 @@ export default {
             years,
         }[scale]);
     },
+    /**
+     *
+     */
     today() {
         const vals = this.getDateValues(new Date()).slice(0, 3);
         // @ts-ignore
         return new Date(...vals);
     },
+    /**
+     *
+     */
     now() {
         return new Date();
     },
+    /**
+     *
+     * @param date
+     * @param qty
+     * @param scale
+     */
     add(date, qty, scale) {
         const numQty = typeof qty === 'string' ? parseInt(qty, 10) : qty;
         const vals = [
@@ -156,6 +197,11 @@ export default {
         // @ts-ignore
         return new Date(...vals);
     },
+    /**
+     *
+     * @param date
+     * @param scale
+     */
     startOf(date, scale) {
         const scores = {
             [YEAR]: 6,
@@ -166,6 +212,10 @@ export default {
             [SECOND]: 1,
             [MILLISECOND]: 0,
         };
+        /**
+         *
+         * @param newScale
+         */
         function shouldReset(newScale) {
             const maxScore = scores[scale];
             return scores[newScale] <= maxScore;
@@ -182,10 +232,18 @@ export default {
         // @ts-ignore
         return new Date(...vals);
     },
+    /**
+     *
+     * @param date
+     */
     clone(date) {
         // @ts-ignore
         return new Date(...this.getDateValues(date));
     },
+    /**
+     *
+     * @param date
+     */
     getDateValues(date) {
         return [
             date.getFullYear(),
@@ -197,6 +255,10 @@ export default {
             date.getMilliseconds(),
         ];
     },
+    /**
+     *
+     * @param date
+     */
     getDaysInMonth(date) {
         const numDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
         const month = date.getMonth();

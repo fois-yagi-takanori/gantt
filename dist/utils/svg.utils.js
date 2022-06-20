@@ -1,3 +1,8 @@
+/**
+ *
+ * @param expr
+ * @param con
+ */
 export function $(expr, con) {
     return typeof expr === 'string'
         ? (con || document).querySelector(expr)
@@ -55,6 +60,10 @@ $.attr = (element, attr, value) => {
     element.setAttribute(attr, value);
     return null;
 };
+/**
+ *
+ * @param name
+ */
 function cubicBezier(name) {
     return {
         ease: '.25 .1 .25 1',
@@ -64,6 +73,11 @@ function cubicBezier(name) {
         'ease-in-out': '.42 0 .58 1',
     }[name];
 }
+/**
+ *
+ * @param tag
+ * @param attrs
+ */
 export function createSVG(tag, attrs) {
     const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
     Object.keys(attrs).forEach((attr) => {
@@ -83,6 +97,15 @@ export function createSVG(tag, attrs) {
     });
     return elem;
 }
+/**
+ *
+ * @param svgElement
+ * @param attr
+ * @param from
+ * @param to
+ * @param dur
+ * @param begin
+ */
 function getAnimationElement(svgElement, attr, from, to, dur = '0.4s', begin = '0.1s') {
     const animEl = svgElement.querySelector('animate');
     if (animEl) {
@@ -109,6 +132,13 @@ function getAnimationElement(svgElement, attr, from, to, dur = '0.4s', begin = '
     svgElement.appendChild(animateElement);
     return svgElement;
 }
+/**
+ *
+ * @param svgElement
+ * @param attr
+ * @param from
+ * @param to
+ */
 export function animateSVG(svgElement, attr, from, to) {
     const animatedSvgElement = getAnimationElement(svgElement, attr, from, to);
     if (animatedSvgElement === svgElement) {

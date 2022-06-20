@@ -1,3 +1,4 @@
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../src/gantt.scss';
 import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
@@ -132,8 +133,10 @@ export default class Gantt {
       svgElement = resolvedElementReference;
     } else {
       throw new TypeError('Frappé Gantt only supports usage of a string CSS selector,'
-        + ' HTML DOM element or SVG DOM element for the \'element\' parameter',);
+        + ' HTML DOM element or SVG DOM element for the \'element\' parameter');
     }
+
+    wrapperElement.classList.add('split');
 
     // svg element
     if (!svgElement) {
@@ -159,9 +162,11 @@ export default class Gantt {
     // wrapper element
     this.$container = document.createElement('div');
     this.$container.classList.add('gantt-container');
+    this.$container.id = 'main-chart';
     this.$columnContainer = document.createElement('div');
     this.$columnContainer.classList.add('gantt-container');
     this.$columnContainer.classList.add('columns_svg');
+    this.$columnContainer.id = 'columns_svg';
 
     const { parentElement } = this.$svg.parentElement;
     parentElement.appendChild(this.$columnContainer);
@@ -173,6 +178,9 @@ export default class Gantt {
     this.popupWrapper = document.createElement('div');
     this.popupWrapper.classList.add('popup-wrapper');
     this.$container.appendChild(this.popupWrapper);
+
+    wrapperElement.appendChild(this.$columnContainer);
+    wrapperElement.appendChild(this.$container);
   }
 
   /**
@@ -1044,7 +1052,7 @@ export default class Gantt {
             });
           }
         } else if (isDragging) {
-          bar.updateBarPosition({ x: $bar.ox + $bar.finaldx});
+          bar.updateBarPosition({ x: $bar.ox + $bar.finaldx });
         }
       });
     });

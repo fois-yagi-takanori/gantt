@@ -1,5 +1,14 @@
 import { createSVG } from '../utils/svg.utils';
+/**
+ *
+ */
 export default class Arrow {
+    /**
+     *
+     * @param gantt
+     * @param from_task
+     * @param to_task
+     */
     constructor(gantt, from_task, to_task) {
         this.gantt = gantt;
         this.fromTask = from_task;
@@ -7,6 +16,9 @@ export default class Arrow {
         this.calculatePath();
         this.draw();
     }
+    /**
+     *
+     */
     calculatePath() {
         let startX = this.fromTask.$bar.getX() + this.fromTask.$bar.getWidth() / 2;
         const condition = () => this.toTask.$bar.getX() < startX + this.gantt.options.padding
@@ -61,6 +73,9 @@ export default class Arrow {
                 l -5 5`;
         }
     }
+    /**
+     *
+     */
     draw() {
         this.element = createSVG('path', {
             d: this.path,
@@ -68,6 +83,9 @@ export default class Arrow {
             'data-to': this.toTask.task.id,
         });
     }
+    /**
+     *
+     */
     update() {
         this.calculatePath();
         this.element.setAttribute('d', this.path);
