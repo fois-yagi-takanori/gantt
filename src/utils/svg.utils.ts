@@ -1,3 +1,8 @@
+/**
+ *
+ * @param expr
+ * @param con
+ */
 export function $(expr: string | Element, con?: Element): Element {
   return typeof expr === 'string'
     ? (con || document).querySelector(expr)
@@ -18,15 +23,11 @@ $.on = (
   }
 };
 
-$.off = (
-  element: Element, event: string, handler: EventListenerOrEventListenerObject,
-): void => {
+$.off = (element: Element, event: string, handler: EventListenerOrEventListenerObject,): void => {
   element.removeEventListener(event, handler);
 };
 
-$.bind = (
-  element: Element, event: string, callback: EventListenerOrEventListenerObject,
-): void => {
+$.bind = (element: Element, event: string, callback: EventListenerOrEventListenerObject,): void => {
   event.split(/\s+/).forEach((e) => {
     element.addEventListener(e, callback);
   });
@@ -59,9 +60,7 @@ $.closest = (selector: string, element: Element): Element => {
   return $.closest(selector, element.parentElement);
 };
 
-$.attr = (
-  element: Element, attr: Record<string, string | number> | string, value?: string | number,
-): string | null => {
+$.attr = (element: Element, attr: Record<string, string | number> | string, value?: string | number): string | null => {
   if (!value && typeof attr === 'string') {
     return element.getAttribute(attr);
   }
@@ -70,13 +69,19 @@ $.attr = (
     Object.keys(attr).forEach((key) => {
       $.attr(element, key, attr[key]);
     });
+
     return null;
   }
 
   element.setAttribute(attr, value as string);
+
   return null;
 };
 
+/**
+ *
+ * @param name
+ */
 function cubicBezier(name: 'ease' | 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out'): string {
   return {
     ease: '.25 .1 .25 1',
@@ -90,6 +95,11 @@ function cubicBezier(name: 'ease' | 'linear' | 'ease-in' | 'ease-out' | 'ease-in
 export type CreateSVGAttrs = Record<string, string | number | Element>
 & { append_to?: Element };
 
+/**
+ *
+ * @param tag
+ * @param attrs
+ */
 export function createSVG(tag: string, attrs: CreateSVGAttrs): SVGElement {
   const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
   Object.keys(attrs).forEach((attr) => {
@@ -105,9 +115,19 @@ export function createSVG(tag: string, attrs: CreateSVGAttrs): SVGElement {
       }
     }
   });
+
   return elem;
 }
 
+/**
+ *
+ * @param svgElement
+ * @param attr
+ * @param from
+ * @param to
+ * @param dur
+ * @param begin
+ */
 function getAnimationElement(
   svgElement: SVGElement,
   attr: string,
@@ -125,6 +145,7 @@ function getAnimationElement(
       dur,
       begin: `click + ${begin}`, // artificial click
     });
+
     return svgElement;
   }
 
@@ -144,6 +165,13 @@ function getAnimationElement(
   return svgElement;
 }
 
+/**
+ *
+ * @param svgElement
+ * @param attr
+ * @param from
+ * @param to
+ */
 export function animateSVG(svgElement: SVGElement, attr: string, from: number, to: number): void {
   const animatedSvgElement = getAnimationElement(svgElement, attr, from, to);
 

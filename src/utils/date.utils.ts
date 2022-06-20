@@ -26,6 +26,12 @@ const monthNames: Record<Language, string[]> = {
 };
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/padStart
+/**
+ *
+ * @param maybeStr
+ * @param targetLength
+ * @param padString
+ */
 function padStart(
   maybeStr: string | number | never[],
   targetLength: number,
@@ -41,10 +47,17 @@ function padStart(
   if (targetLength > paddedString.length) {
     paddedString += paddedString.repeat(truncatedLength / paddedString.length);
   }
+
   return paddedString.slice(0, truncatedLength) + String(str);
 }
 
 export default {
+  /**
+   *
+   * @param date
+   * @param date_separator
+   * @param time_separator
+   */
   parse(date: String | Date, date_separator: string = '-', time_separator: RegExp = /[.:]/): Date | null {
     if (date instanceof Date) {
       return date;
@@ -72,9 +85,15 @@ export default {
       // @ts-ignore
       return new Date(...values);
     }
+
     return null;
   },
 
+  /**
+   *
+   * @param date
+   * @param with_time
+   */
   toString(date: Date, with_time = false): string {
     if (!(date instanceof Date)) {
       throw new TypeError('Invalid argument type');
@@ -98,9 +117,13 @@ export default {
     return dateString + (with_time ? ` ${timeString}` : '');
   },
 
-  format(
-    date: Date, format_string: string = 'YYYY-MM-DD HH:mm:ss.SSS', lang: Language = 'ja',
-  ): string {
+  /**
+   *
+   * @param date
+   * @param format_string
+   * @param lang
+   */
+  format(date: Date, format_string: string = 'YYYY-MM-DD HH:mm:ss.SSS', lang: Language = 'ja',): string {
     if (!Object.keys(monthNames).includes(lang)) {
       throw new Error('Invalid Language');
     }
@@ -138,6 +161,12 @@ export default {
     return str;
   },
 
+  /**
+   *
+   * @param dateA
+   * @param dateB
+   * @param scale
+   */
   diff(dateA: number | Date, dateB: number | Date, scale = DAY): number {
     const milliseconds = Number(dateA) - Number(dateB);
     const seconds = milliseconds / 1000;
@@ -152,29 +181,40 @@ export default {
       scale += 's';
     }
 
-    return Math.floor(
-      {
-        milliseconds,
-        seconds,
-        minutes,
-        hours,
-        days,
-        months,
-        years,
-      }[scale],
-    );
+    return Math.floor({
+      milliseconds,
+      seconds,
+      minutes,
+      hours,
+      days,
+      months,
+      years,
+    }[scale],);
   },
 
+  /**
+   *
+   */
   today(): Date {
     const vals = this.getDateValues(new Date()).slice(0, 3);
+
     // @ts-ignore
     return new Date(...vals);
   },
 
+  /**
+   *
+   */
   now(): Date {
     return new Date();
   },
 
+  /**
+   *
+   * @param date
+   * @param qty
+   * @param scale
+   */
   add(date: Date, qty: string | number, scale: 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second' | 'millisecond'): Date {
     const numQty = typeof qty === 'string' ? parseInt(qty, 10) : qty;
 
@@ -187,10 +227,16 @@ export default {
       date.getSeconds() + (scale === SECOND ? numQty : 0),
       date.getMilliseconds() + (scale === MILLISECOND ? numQty : 0),
     ];
+
     // @ts-ignore
     return new Date(...vals);
   },
 
+  /**
+   *
+   * @param date
+   * @param scale
+   */
   startOf(date: Date, scale: string): Date {
     const scores: Record<string, number> = {
       [YEAR]: 6,
@@ -202,8 +248,13 @@ export default {
       [MILLISECOND]: 0,
     };
 
+    /**
+     *
+     * @param newScale
+     */
     function shouldReset(newScale: string): boolean {
       const maxScore = scores[scale];
+
       return scores[newScale] <= maxScore;
     }
 
@@ -221,11 +272,19 @@ export default {
     return new Date(...vals);
   },
 
+  /**
+   *
+   * @param date
+   */
   clone(date: Date): Date {
     // @ts-ignore
     return new Date(...this.getDateValues(date));
   },
 
+  /**
+   *
+   * @param date
+   */
   getDateValues(date: Date): number[] {
     return [
       date.getFullYear(),
@@ -238,6 +297,10 @@ export default {
     ];
   },
 
+  /**
+   *
+   * @param date
+   */
   getDaysInMonth(date: Date): number {
     const numDays: number[] = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
@@ -252,6 +315,7 @@ export default {
     if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
       return 29;
     }
+
     return 28;
   },
 };

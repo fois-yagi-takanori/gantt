@@ -1,16 +1,14 @@
-import dateUtils from './utils/date.utils';
-import { $, createSVG } from './utils/svg.utils';
-import Bar from './app/bar';
-import Arrow from './app/arrow';
-import Popup, { PopupOptions } from './app/popup';
-import * as stringUtils from './utils/string.utils';
-
-// eslint-disable-next-line import/no-useless-path-segments
 import '../src/gantt.scss';
+import * as stringUtils from './utils/string.utils';
+import { $, createSVG } from './utils/svg.utils';
+import { DateInfo } from './domain/dateInfo';
+import { Options } from './domain/options';
 import { ResolvedTask } from './domain/resolvedTask';
 import { Task } from './domain/task';
-import { Options } from './domain/options';
-import { DateInfo } from './domain/dateInfo';
+import Arrow from './app/arrow';
+import Bar from './app/bar';
+import Popup, { PopupOptions } from './app/popup';
+import dateUtils from './utils/date.utils';
 
 export type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
 
@@ -30,6 +28,10 @@ const VIEW_MODE: {
   YEAR: 'Year',
 };
 
+/**
+ *
+ * @param task
+ */
 function generateId(task: ResolvedTask): string {
   return (
     `${task.name
@@ -39,6 +41,9 @@ function generateId(task: ResolvedTask): string {
   );
 }
 
+/**
+ *
+ */
 export default class Gantt {
   private $svg: SVGElement;
 
@@ -78,6 +83,14 @@ export default class Gantt {
 
   static VIEW_MODE: { QUARTER_DAY: 'Quarter Day'; HALF_DAY: 'Half Day'; DAY: 'Day'; WEEK: 'Week'; MONTH: 'Month'; YEAR: 'Year' };
 
+  /**
+   * コンストラクタ
+   *
+   * @param {(string | HTMLElement | SVGElement | unknown)} wrapper - ラッパー
+   * @param {Task[]} tasks - タスク一覧
+   * @param {Options} options - オプション
+   * @memberof Gantt
+   */
   constructor(
     wrapper: string | HTMLElement | SVGElement | unknown,
     tasks: Task[],
@@ -92,6 +105,12 @@ export default class Gantt {
     this.bindEvents();
   }
 
+  /**
+   * 大枠作成
+   *
+   * @param {(string | HTMLElement | SVGElement | unknown)} elementReference
+   * @memberof Gantt
+   */
   setupWrapper(elementReference: string | HTMLElement | SVGElement | unknown): void {
     let svgElement;
     let wrapperElement;
@@ -112,10 +131,8 @@ export default class Gantt {
     } else if (resolvedElementReference instanceof SVGElement) {
       svgElement = resolvedElementReference;
     } else {
-      throw new TypeError(
-        'Frappé Gantt only supports usage of a string CSS selector,'
-        + ' HTML DOM element or SVG DOM element for the \'element\' parameter',
-      );
+      throw new TypeError('Frappé Gantt only supports usage of a string CSS selector,'
+        + ' HTML DOM element or SVG DOM element for the \'element\' parameter',);
     }
 
     // svg element
@@ -158,6 +175,10 @@ export default class Gantt {
     this.$container.appendChild(this.popupWrapper);
   }
 
+  /**
+   *
+   * @param options
+   */
   setupOptions(options: Options): void {
     const defaultOptions: Options = {
       headerHeight: 50,
@@ -180,6 +201,10 @@ export default class Gantt {
     this.options = { ...defaultOptions, ...options };
   }
 
+  /**
+   *
+   * @param tasks
+   */
   setupTasks(tasks: Task[]): void {
     // prepare tasks
     this.tasks = tasks.map((task, i): ResolvedTask => {
@@ -268,6 +293,9 @@ export default class Gantt {
     this.setupDependencies();
   }
 
+  /**
+   *
+   */
   setupDependencies(): void {
     this.dependencyMap = {};
     this.tasks.forEach((t) => {
@@ -278,11 +306,19 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   * @param tasks
+   */
   refresh(tasks: Task[]): void {
     this.setupTasks(tasks);
     this.changeViewMode();
   }
 
+  /**
+   *
+   * @param mode
+   */
   changeViewMode(mode: ViewMode = this.options.viewMode): void {
     this.updateViewScale(mode);
     this.setupDates();
@@ -291,6 +327,10 @@ export default class Gantt {
     this.triggerEvent('ViewChange', [mode]);
   }
 
+  /**
+   *
+   * @param view_mode
+   */
   updateViewScale(view_mode: ViewMode): void {
     this.options.viewMode = view_mode;
 
@@ -325,11 +365,17 @@ export default class Gantt {
     }
   }
 
+  /**
+   *
+   */
   setupDates(): void {
     this.setupGanttDates();
     this.setupDateValues();
   }
 
+  /**
+   *
+   */
   setupGanttDates(): void {
     this.ganttStart = null;
     this.ganttEnd = null;
@@ -371,6 +417,9 @@ export default class Gantt {
     }
   }
 
+  /**
+   *
+   */
   setupDateValues(): void {
     this.dates = [];
     let currentDate: Date | null = null;
@@ -393,11 +442,17 @@ export default class Gantt {
     }
   }
 
+  /**
+   *
+   */
   bindEvents(): void {
     this.bindGridClick();
     this.bindBarEvents();
   }
 
+  /**
+   *
+   */
   render(): void {
     this.clear();
     this.setupLayers();
@@ -410,6 +465,9 @@ export default class Gantt {
     this.setScrollPosition();
   }
 
+  /**
+   *
+   */
   setupLayers(): void {
     this.layers = {};
     this.columnLayers = {};
@@ -429,6 +487,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   makeGrid(): void {
     this.makeGridBackground();
     this.makeGridRows();
@@ -438,6 +499,9 @@ export default class Gantt {
     this.makeGridHighlights();
   }
 
+  /**
+   *
+   */
   makeGridBackground(): void {
     const gridWidth = this.dates.length * this.options.columnWidth;
     const columnGridWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
@@ -475,6 +539,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   makeGridRows(): void {
     const rowsLayer = createSVG('g', { append_to: this.layers.grid });
     const linesLayer = createSVG('g', { append_to: this.layers.grid });
@@ -527,6 +594,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   makeGridHeader(): void {
     const headerWidth = this.dates.length * this.options.columnWidth;
     const headerHeight = this.options.headerHeight + 10;
@@ -540,6 +610,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   makeColumnsGridHeader(): void {
     const headerWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
     const headerHeight = this.options.headerHeight + 10;
@@ -553,6 +626,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   makeGridTicks(): void {
     let tickX = 0;
     const tickY = this.options.headerHeight + this.options.padding / 2;
@@ -595,6 +671,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   makeGridHighlights(): void {
     // highlight today's date
     if (this.viewIs(VIEW_MODE.DAY)) {
@@ -620,6 +699,9 @@ export default class Gantt {
     }
   }
 
+  /**
+   *
+   */
   makeDates(): void {
     for (let i = 0; i < this.getDatesToDraw().length; i += 1) {
       const date = this.getDatesToDraw()[i];
@@ -642,7 +724,7 @@ export default class Gantt {
 
         // remove out-of-bound dates
         if (
-          $upperText.getBBox().right > (<SVGGraphicsElement> this.layers.grid).getBBox().width
+          $upperText.getBBox().right > (<SVGGraphicsElement>this.layers.grid).getBBox().width
         ) {
           $upperText.remove();
         }
@@ -680,15 +762,26 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   getDatesToDraw(): DateInfo[] {
     let lastDate: Date = null;
+
     return this.dates.map((date, i) => {
       const d = this.getDateInfo(date, lastDate, i);
       lastDate = date;
+
       return d;
     });
   }
 
+  /**
+   *
+   * @param date
+   * @param lastDate
+   * @param i
+   */
   getDateInfo(date: Date, lastDate: Date, i: number): DateInfo {
     if (!lastDate) {
       // eslint-disable-next-line no-param-reassign
@@ -775,14 +868,21 @@ export default class Gantt {
     };
   }
 
+  /**
+   *
+   */
   makeBars(): void {
     this.bars = this.tasks.map((task) => {
       const bar = new Bar(this, task);
       this.layers.bar.appendChild(bar.group);
+
       return bar;
     });
   }
 
+  /**
+   *
+   */
   makeArrows(): void {
     this.arrows = [];
     this.tasks.forEach((task) => {
@@ -796,6 +896,7 @@ export default class Gantt {
             this.bars[task.indexResolved], // to_task
           );
           this.layers.arrow.appendChild(arrow.element);
+
           return arrow;
         })
         .filter(Boolean); // filter falsy values
@@ -803,6 +904,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   mapArrowsOnBars(): void {
     this.bars.forEach((bar) => {
       // eslint-disable-next-line no-param-reassign
@@ -813,6 +917,9 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   */
   setWidth(): void {
     const currentWidth = this.$svg.getBoundingClientRect().width;
     const actualWidth = this.$svg
@@ -823,6 +930,9 @@ export default class Gantt {
     }
   }
 
+  /**
+   *
+   */
   setScrollPosition(): void {
     const { parentElement } = this.$svg;
     if (!parentElement) return;
@@ -839,6 +949,9 @@ export default class Gantt {
       - this.options.columnWidth;
   }
 
+  /**
+   *
+   */
   bindGridClick(): void {
     $.on(
       this.$svg,
@@ -851,6 +964,7 @@ export default class Gantt {
     );
   }
 
+  // eslint-disable-next-line max-lines-per-function
   bindBarEvents(): void {
     let isDragging = false;
     let xOnStart = 0;
@@ -961,6 +1075,9 @@ export default class Gantt {
     this.bindBarProgress();
   }
 
+  /**
+   *
+   */
   bindBarProgress(): void {
     let xOnStart = 0;
     let isResizing: boolean = null;
@@ -1011,19 +1128,26 @@ export default class Gantt {
     });
   }
 
+  /**
+   *
+   * @param task_id
+   */
   getAllDependentTasks(task_id: string): string[] {
     let out: string[] = [];
     let toProcess = [task_id];
     while (toProcess.length) {
       const deps = toProcess.reduce((acc, curr) => acc.concat(this.dependencyMap[curr]), []);
       out = out.concat(deps);
-      // eslint-disable-next-line @typescript-eslint/no-loop-func
       toProcess = deps.filter((d) => !toProcess.includes(d));
     }
 
     return out.filter(Boolean);
   }
 
+  /**
+   *
+   * @param dx
+   */
   getSnapPosition(dx: number): number {
     const odx = dx;
     let rem;
@@ -1051,9 +1175,13 @@ export default class Gantt {
           ? 0
           : this.options.columnWidth);
     }
+
     return position;
   }
 
+  /**
+   *
+   */
   unselectAll(): void {
     Array.from(this.$svg.querySelectorAll('.bar-wrapper'))
       .forEach((el) => {
@@ -1061,6 +1189,10 @@ export default class Gantt {
       });
   }
 
+  /**
+   *
+   * @param modes
+   */
   viewIs(modes: ViewMode | ViewMode[]): boolean {
     if (typeof modes === 'string') {
       return this.options.viewMode === modes;
@@ -1073,14 +1205,26 @@ export default class Gantt {
     return false;
   }
 
+  /**
+   *
+   * @param id
+   */
   getTask(id: string): ResolvedTask {
     return this.tasks.find((task) => task.id === id);
   }
 
+  /**
+   *
+   * @param id
+   */
   getBar(id: string): Bar {
     return this.bars.find((bar) => bar.task.id === id);
   }
 
+  /**
+   *
+   * @param options
+   */
   showPopup(options: PopupOptions): void {
     if (!this.popup) {
       this.popup = new Popup(
@@ -1091,10 +1235,18 @@ export default class Gantt {
     this.popup.show(options);
   }
 
+  /**
+   *
+   */
   hidePopup(): void {
     if (this.popup) this.popup.hide();
   }
 
+  /**
+   *
+   * @param event
+   * @param args
+   */
   triggerEvent(event: string, args: unknown): void {
     // @ts-ignore
     this.options[`on${event}`]?.apply(null, args);
@@ -1109,9 +1261,7 @@ export default class Gantt {
   getOldestStartingDate(): Date {
     return this.tasks
       .map((task) => task.startResolved)
-      .reduce(
-        (prev_date, cur_date) => (cur_date <= prev_date ? cur_date : prev_date),
-      );
+      .reduce((prev_date, cur_date) => (cur_date <= prev_date ? cur_date : prev_date),);
   }
 
   /**
@@ -1123,14 +1273,22 @@ export default class Gantt {
     this.$svg.innerHTML = '';
   }
 
+  /**
+   *
+   * @param sortFn
+   */
   setSortKey(sortFn?: (a: ResolvedTask, b: ResolvedTask) => number): void {
     this.sortKey = sortFn ?? ((a, b): number => a.id.localeCompare(b.id));
     this.sortTasks();
   }
 
+  /**
+   *
+   */
   sortTasks(): void {
     const updatedTasks = this.tasks.sort(this.sortKey).map((task, newIndex) => {
       task.indexResolved = newIndex;
+
       return task;
     });
     this.refresh(updatedTasks);

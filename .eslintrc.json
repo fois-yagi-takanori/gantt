@@ -1,0 +1,110 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "unused-imports",
+    "jsdoc",
+    "sort-imports-es6-autofix",
+    "@typescript-eslint"
+  ],
+  "ignorePatterns": [
+    "projects/**/*"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "*.ts"
+      ],
+      "parserOptions": {
+        "project": [
+          "tsconfig.json"
+        ],
+        "createDefaultProgram": true,
+        "ecmaVersion": 2020, 
+        "sourceType": "module"
+      },
+      "extends": [
+        "plugin:import/errors"
+      ],
+      "rules": {
+        "sort-imports-es6-autofix/sort-imports-es6": [2, {
+          "ignoreCase": false,
+          "ignoreMemberSort": true,
+          "memberSyntaxSortOrder": ["none", "all", "multiple", "single"]
+        }],
+        "unused-imports/no-unused-imports": "error",
+        "@typescript-eslint/no-unused-vars": "error",
+        "no-trailing-spaces": "error",
+        "no-multiple-empty-lines": ["error",
+          {
+            "max": 1
+          }
+        ],
+        "newline-per-chained-call": "error",
+        "newline-before-return": "error",
+        "quotes": [
+          "error",
+          "single"
+        ],
+        "no-unreachable": "error",
+        "semi-spacing": "error",
+        "semi": [
+          "error",
+          "always"
+        ],
+        "semi-style": [
+          "error",
+          "last"
+        ],
+        "no-tabs": "error",
+        "max-len": [
+          "error",
+          {
+            "code": 120,
+            "ignoreComments": true,
+            "ignoreStrings": true
+          }
+        ],
+        "indent": [
+          "error",
+          2,
+          {
+            "SwitchCase": 1
+          }
+        ],
+        "comma-style": "error",
+        "function-paren-newline": [
+          "error",
+          "multiline"
+        ],
+        "max-depth": "error",
+        "max-lines-per-function": [
+          "error",
+          {
+            "max": 100,
+            "skipComments": true
+          }
+        ],
+        "space-before-blocks": "error",
+        "space-in-parens": "error",
+        "no-var": "error",
+        "prefer-const": "error"
+      }
+    }
+  ],
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "paths": [
+          "src"
+        ],
+        "extensions": [
+          ".ts"
+        ]
+      }
+    },
+    "import/ignore": [
+      "node_modules"
+    ]
+  }
+}

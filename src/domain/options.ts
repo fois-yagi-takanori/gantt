@@ -1,6 +1,6 @@
-import { ViewMode } from '..';
 import { Language } from '../utils/date.utils';
 import { ResolvedTask } from './resolvedTask';
+import { ViewMode } from '..';
 
 export interface Options {
   headerHeight?: number,

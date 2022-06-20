@@ -1,7 +1,10 @@
 import { createSVG } from '../utils/svg.utils';
-import Gantt from '../index';
 import Bar from './bar';
+import Gantt from '../index';
 
+/**
+ *
+ */
 export default class Arrow {
   private gantt: Gantt;
 
@@ -13,6 +16,12 @@ export default class Arrow {
 
   element: SVGElement;
 
+  /**
+   *
+   * @param gantt
+   * @param from_task
+   * @param to_task
+   */
   constructor(gantt: Gantt, from_task: Bar, to_task: Bar) {
     this.gantt = gantt;
     this.fromTask = from_task;
@@ -22,6 +31,9 @@ export default class Arrow {
     this.draw();
   }
 
+  /**
+   *
+   */
   calculatePath(): void {
     let startX = this.fromTask.$bar.getX() + this.fromTask.$bar.getWidth() / 2;
 
@@ -87,6 +99,9 @@ export default class Arrow {
     }
   }
 
+  /**
+   *
+   */
   draw(): void {
     this.element = createSVG('path', {
       d: this.path,
@@ -95,6 +110,9 @@ export default class Arrow {
     });
   }
 
+  /**
+   *
+   */
   update(): void {
     this.calculatePath();
     this.element.setAttribute('d', this.path);

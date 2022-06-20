@@ -10,7 +10,8 @@
     "dev": "concurrently \"rollup -c -w\" \"tsc --watch\"",
     "test": "jest",
     "test:watch": "jest --watch",
-    "prettier": "prettier es6 --write \"{src/*,tests/*,rollup.config}.js\""
+    "prettier": "prettier es6 --write \"{src/*,tests/*,rollup.config}.js\"",
+    "lint": "eslint src/**/*.ts"
   },
   "repository": {
     "type": "git",
@@ -32,15 +33,15 @@
   "homepage": "https://github.com/frappe/gantt",
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
     "babel-preset-env": "^1.7.0",
     "concurrently": "^6.3.0",
     "deepmerge": "^4.2.2",
-    "eslint": "^7.2.0",
+    "eslint": "^7.32.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-airbnb-typescript": "^14.0.1",
-    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-import": "^2.26.0",
     "jest": "^27.3.1",
     "rollup": "^2.58.0",
     "rollup-plugin-sass": "^1.2.9",
@@ -50,5 +51,11 @@
   },
   "eslintIgnore": [
     "dist"
-  ]
+  ],
+  "dependencies": {
+    "@babel/eslint-parser": "^7.18.2",
+    "eslint-plugin-jsdoc": "^39.3.3",
+    "eslint-plugin-sort-imports-es6-autofix": "^0.6.0",
+    "eslint-plugin-unused-imports": "^2.0.0"
+  }
 }

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "module": "es2015",
+    "module": "es2020",
     "moduleResolution": "Node",
-    "target": "es2015",
-    "lib": ["ES2015", "DOM"],
+    "target": "es2017",
+    "lib": ["ES2018", "DOM"],
     "sourceMap": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -20,7 +20,7 @@
   },
   "include": [
     "src",
-    ".eslintrc.js",
+    ".eslintrc.json",
     "rollup.config.js"
   ],
   "exclude": [

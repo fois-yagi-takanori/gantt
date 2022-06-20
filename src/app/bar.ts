@@ -1,9 +1,12 @@
+import { $, animateSVG, createSVG } from '../utils/svg.utils';
+import { ResolvedTask } from '../domain/resolvedTask';
+import Arrow from './arrow';
 import Gantt from '..';
 import dateUtils from '../utils/date.utils';
-import { $, animateSVG, createSVG } from '../utils/svg.utils';
-import Arrow from './arrow';
-import { ResolvedTask } from '../domain/resolvedTask';
 
+/**
+ *
+ */
 export default class Bar {
   private actionCompleted: boolean;
 
@@ -56,6 +59,11 @@ export default class Bar {
 
   interactionTarget: 'planned' | 'main' | null;
 
+  /**
+   *
+   * @param gantt
+   * @param task
+   */
   constructor(gantt: Gantt, task: ResolvedTask) {
     this.setDefaults(gantt, task);
     this.prepare();
@@ -63,17 +71,28 @@ export default class Bar {
     this.bind();
   }
 
+  /**
+   *
+   * @param gantt
+   * @param task
+   */
   setDefaults(gantt: Gantt, task: ResolvedTask): void {
     this.actionCompleted = false;
     this.gantt = gantt;
     this.task = task;
   }
 
+  /**
+   *
+   */
   prepare(): void {
     this.prepareValues();
     this.prepareHelpers();
   }
 
+  /**
+   *
+   */
   prepareValues(): void {
     this.invalid = this.task.invalid;
     this.height = this.gantt.options.barHeight;
@@ -115,24 +134,42 @@ export default class Bar {
 
   prepareHelpers = (): void => {
     /* eslint-disable func-names */
+    /**
+     *
+     */
     SVGElement.prototype.getX = function (): number {
       return +this.getAttribute('x');
     };
+    /**
+     *
+     */
     SVGElement.prototype.getY = function (): number {
       return +this.getAttribute('y');
     };
+    /**
+     *
+     */
     SVGElement.prototype.getWidth = function (): number {
       return +this.getAttribute('width');
     };
+    /**
+     *
+     */
     SVGElement.prototype.getHeight = function (): number {
       return +this.getAttribute('height');
     };
+    /**
+     *
+     */
     SVGElement.prototype.getEndX = function (): number {
       return this.getX() + this.getWidth();
     };
     /* eslint-enable func-names */
   };
 
+  /**
+   *
+   */
   draw(): void {
     this.drawBar();
     this.drawProgressBar();
@@ -141,6 +178,9 @@ export default class Bar {
     this.drawResizeHandles();
   }
 
+  /**
+   *
+   */
   drawBar(): void {
     this.$bar = createSVG('rect', {
       x: this.x,
@@ -164,6 +204,9 @@ export default class Bar {
     }
   }
 
+  /**
+   *
+   */
   drawPlannedBar(): void {
     this.$plannedBar = createSVG('rect', {
       x: this.plannedX,
@@ -190,6 +233,9 @@ export default class Bar {
     }
   }
 
+  /**
+   *
+   */
   drawProgressBar(): void {
     if (this.invalid) return;
     this.$barProgress = createSVG('rect', {
@@ -208,6 +254,9 @@ export default class Bar {
     animateSVG(this.$barProgress, 'width', 0, this.progressWidth);
   }
 
+  /**
+   *
+   */
   drawLabel(): void {
     const text = createSVG('text', {
       x: this.x + this.width / 2,
@@ -223,6 +272,9 @@ export default class Bar {
     requestAnimationFrame(() => this.updateLabelPosition());
   }
 
+  /**
+   *
+   */
   drawResizeHandles(): void {
     if (this.invalid) return;
 
@@ -287,8 +339,12 @@ export default class Bar {
     }
   }
 
+  /**
+   *
+   */
   getProgressPolygonPoints(): number[] {
     const barProgress = this.$barProgress;
+
     return [
       barProgress.getEndX() - 5,
       barProgress.getY() + barProgress.getHeight(),
@@ -299,12 +355,18 @@ export default class Bar {
     ];
   }
 
+  /**
+   *
+   */
   bind(): void {
     if (this.invalid) return;
     this.setupClickEvent();
     this.setupHoverEvent();
   }
 
+  /**
+   *
+   */
   setupClickEvent(): void {
     $.on(this.group, `focus ${this.gantt.options.popupTrigger}`, () => {
       if (this.actionCompleted) {
@@ -327,6 +389,9 @@ export default class Bar {
     });
   }
 
+  /**
+   *
+   */
   showPopup(): void {
     if (this.gantt.barBeingDragged) return;
 
@@ -347,6 +412,13 @@ export default class Bar {
     });
   }
 
+  /**
+   *
+   * @param root0
+   * @param root0.x
+   * @param root0.width
+   * @param root0.planned
+   */
   updateBarPosition({
     x = null,
     width = null,
@@ -367,6 +439,7 @@ export default class Bar {
         if (!validX) {
           // eslint-disable-next-line no-param-reassign
           width = null;
+
           return;
         }
       }
@@ -381,6 +454,9 @@ export default class Bar {
     this.updateArrowPosition();
   }
 
+  /**
+   *
+   */
   dateChanged(): void {
     {
       let changed = false;
@@ -432,12 +508,18 @@ export default class Bar {
     }
   }
 
+  /**
+   *
+   */
   progressChanged(): void {
     const newProgress = this.computeProgress();
     this.task.progress = newProgress;
     this.gantt.triggerEvent('ProgressChange', [this.task, newProgress]);
   }
 
+  /**
+   *
+   */
   setActionCompleted(): void {
     this.actionCompleted = true;
     setTimeout(() => {
@@ -445,6 +527,10 @@ export default class Bar {
     }, 1000);
   }
 
+  /**
+   *
+   * @param planned
+   */
   computeStartEndDate(planned: boolean = false): { newStartDate: Date, newEndDate: Date } {
     const bar = planned ? this.$plannedBar : this.$bar;
     const xInUnits = Math.round(bar.getX() / this.gantt.options.columnWidth);
@@ -466,11 +552,19 @@ export default class Bar {
     };
   }
 
+  /**
+   *
+   */
   computeProgress(): number {
     const progress = (this.$barProgress.getWidth() / this.$bar.getWidth()) * 100;
+
     return parseInt(String(progress), 10);
   }
 
+  /**
+   *
+   * @param planned
+   */
   computeX(planned: boolean = false): number {
     const {
       step,
@@ -486,9 +580,13 @@ export default class Bar {
       diff = dateUtils.diff(taskStart, ganttStart, 'day');
       x = (diff * columnWidth) / 30;
     }
+
     return x;
   }
 
+  /**
+   *
+   */
   computeY(): number {
     return (
       this.gantt.options.headerHeight
@@ -497,6 +595,10 @@ export default class Bar {
     );
   }
 
+  /**
+   *
+   * @param dx
+   */
   getSnapPosition(dx: number): number {
     const odx = dx;
     let rem;
@@ -524,6 +626,7 @@ export default class Bar {
                   ? 0
                   : this.gantt.options.columnWidth);
     }
+
     return position;
   }
 
@@ -532,9 +635,13 @@ export default class Bar {
     if (!Number.isNaN(numValue)) {
       element.setAttribute(attr, String(value));
     }
+
     return element;
   };
 
+  /**
+   *
+   */
   updateProgressbarPosition(): void {
     this.$barProgress.setAttribute('x', String(this.$bar.getX()));
     this.$barProgress.setAttribute(
@@ -543,6 +650,9 @@ export default class Bar {
     );
   }
 
+  /**
+   *
+   */
   updateLabelPosition(): void {
     const bar = this.$bar;
     const label = this.group.querySelector('.bar-label') as SVGGraphicsElement;
@@ -556,6 +666,9 @@ export default class Bar {
     }
   }
 
+  /**
+   *
+   */
   updateHandlePosition(): void {
     const bar = this.$bar;
     const plannedBar = this.$plannedBar;
@@ -581,6 +694,9 @@ export default class Bar {
     }
   }
 
+  /**
+   *
+   */
   updateArrowPosition(): void {
     this.arrows = this.arrows || [];
     this.arrows.forEach((arrow) => {
@@ -588,6 +704,9 @@ export default class Bar {
     });
   }
 
+  /**
+   *
+   */
   setupHoverEvent(): void {
     $.on(this.task.gridRow, 'mousemove', () => {
       // Mouse is not hovering over any elements.
@@ -602,6 +721,7 @@ export default class Bar {
 
       if (e.buttons % 2 === 1) {
         this.setHover(false, false);
+
         return;
       }
 
@@ -623,6 +743,11 @@ export default class Bar {
     });
   }
 
+  /**
+   *
+   * @param main
+   * @param planned
+   */
   setHover(main: boolean, planned: boolean): void {
     if (main) {
       this.interactionTarget = 'main';
