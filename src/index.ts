@@ -1,65 +1,18 @@
-import dateUtils, { Language } from './dateUtils';
-import { $, createSVG } from './svgUtils';
-import Bar from './bar';
-import Arrow from './arrow';
-import Popup, { PopupOptions } from './popup';
+import dateUtils from './utils/date.utils';
+import { $, createSVG } from './utils/svg.utils';
+import Bar from './app/bar';
+import Arrow from './app/arrow';
+import Popup, { PopupOptions } from './app/popup';
 import * as stringUtils from './utils/string.utils';
 
 // eslint-disable-next-line import/no-useless-path-segments
 import '../src/gantt.scss';
-
-interface Task {
-  id: string,
-  name: string,
-  start: string | Date,
-  end: string | Date,
-  progress: number,
-  plannedStart: string | Date,
-  plannedEnd: string | Date,
-  dependencies?: string | string[],
-  customClass?: string,
-  color?: string,
-  plannedColor?: string,
-  progressColor?: string,
-  labelColor?: string
-}
-
-export interface ResolvedTask extends Task {
-  invalid?: boolean;
-  indexResolved: number;
-  endResolved: Date;
-  dependencies: string[],
-  startResolved: Date;
-  plannedStartResolved?: Date;
-  plannedEndResolved?: Date;
-  hasPlanned: boolean;
-  gridRow?: SVGElement;
-  [prop: string]: unknown;
-}
+import { ResolvedTask } from './domain/resolvedTask';
+import { Task } from './domain/task';
+import { Options } from './domain/options';
+import { DateInfo } from './domain/dateInfo';
 
 export type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
-
-export interface Options {
-  headerHeight?: number,
-  columnWidth?: number,
-  step?: number,
-  viewModes?: ViewMode[],
-  barHeight?: number,
-  barCornerRadius?: number,
-  arrowCurve?: number,
-  padding?: number,
-  viewMode?: ViewMode,
-  dateFormat?: string,
-  customPopupHtml?: string | null,
-  popupTrigger: string,
-  language: Language,
-  columnNames: string[],
-  columnWidthForColumns: number,
-  onClick?: (task: ResolvedTask) => void,
-  onDateChange?: (task: ResolvedTask, startDate: Date, endDate: Date) => void,
-  onProgressChange?: (task: ResolvedTask, progress: number) => void,
-  onViewChange?: (mode: ViewMode) => void,
-}
 
 const VIEW_MODE: {
   QUARTER_DAY: 'Quarter Day',
@@ -84,15 +37,6 @@ function generateId(task: ResolvedTask): string {
       .toString(36)
       .slice(2, 12)}`
   );
-}
-
-interface DateInfo {
-  upper_y: string | number | Element;
-  upper_x: string | number | Element;
-  upper_text: string | number | Element;
-  lower_text: string | number | Element;
-  lower_y: string | number | Element;
-  lower_x: string | number | Element;
 }
 
 export default class Gantt {
@@ -230,6 +174,7 @@ export default class Gantt {
       customPopupHtml: null,
       language: 'ja',
       columnNames: new Array<string>(),
+      columnKeys: new Array<string>(),
       columnWidthForColumns: 120,
     };
     this.options = { ...defaultOptions, ...options };
@@ -254,8 +199,8 @@ export default class Gantt {
 
       const resolvedTask: ResolvedTask = {
         ...task,
-        startResolved: dateUtils.parse(task.start),
-        endResolved: dateUtils.parse(task.end),
+        startResolved: dateUtils.parse(task.planStartDate),
+        endResolved: dateUtils.parse(task.planEndDate),
         hasPlanned: false,
         indexResolved: i,
         dependencies,
@@ -270,17 +215,17 @@ export default class Gantt {
       // cache index
 
       // invalid dates
-      if (!resolvedTask.start && !resolvedTask.end) {
+      if (!resolvedTask.planStartDate && !resolvedTask.planEndDate) {
         const today = dateUtils.today();
         resolvedTask.startResolved = today;
         resolvedTask.endResolved = dateUtils.add(today, 2, 'day');
       }
 
-      if (!resolvedTask.start && resolvedTask.end) {
+      if (!resolvedTask.planStartDate && resolvedTask.planEndDate) {
         resolvedTask.startResolved = dateUtils.add(resolvedTask.endResolved, -2, 'day');
       }
 
-      if (resolvedTask.start && !resolvedTask.end) {
+      if (resolvedTask.planStartDate && !resolvedTask.planEndDate) {
         resolvedTask.endResolved = dateUtils.add(resolvedTask.startResolved, 2, 'day');
       }
 
@@ -293,7 +238,7 @@ export default class Gantt {
       }
 
       // invalid flag
-      if (!resolvedTask.start || !resolvedTask.end) {
+      if (!resolvedTask.planStartDate || !resolvedTask.planEndDate) {
         resolvedTask.invalid = true;
       }
 
@@ -305,8 +250,8 @@ export default class Gantt {
       // Planned start/finish.
       if (task.plannedStart || task.plannedEnd) {
         resolvedTask.hasPlanned = true;
-        resolvedTask.plannedStartResolved = dateUtils.parse(task.plannedStart || task.start);
-        resolvedTask.plannedEndResolved = dateUtils.parse(task.plannedEnd || task.end);
+        resolvedTask.plannedStartResolved = dateUtils.parse(task.plannedStart || task.planStartDate);
+        resolvedTask.plannedEndResolved = dateUtils.parse(task.plannedEnd || task.planEndDate);
 
         // if hours is not set, assume the last day is full day
         // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
@@ -722,11 +667,11 @@ export default class Gantt {
         + this.options.padding
         + task.indexResolved * (this.options.barHeight + this.options.padding);
       x = 60;
-      this.options.columnNames.forEach((column) => {
+      this.options.columnKeys.forEach((columnKey) => {
         createSVG('text', {
           x,
           y: posY,
-          innerHTML: stringUtils.getDefaultString(String(task[column])),
+          innerHTML: stringUtils.getDefaultString(String(task[columnKey])),
           class: 'lower-text',
           append_to: this.columnLayers.date,
         });
@@ -921,7 +866,7 @@ export default class Gantt {
     }
 
     // @ts-ignore Weird sorcery. I don't touch it and it keeps working.
-    $.on(this.$svg, 'mousedown', '.bar, .bar-progress, .handle', (e, element) => {
+    $.on(this.$svg, 'mousedown', '.bar-wrapper, .bar-progress, .handle', (e, element) => {
       const barWrapper = $.closest('.bar-wrapper', element);
 
       if (element.classList.contains('left')) {

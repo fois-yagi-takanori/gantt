@@ -1,10 +1,10 @@
-import Bar from './app/bar';
-import { PopupOptions } from './app/popup';
+import Bar from './bar';
+import { PopupOptions } from './popup';
 import '../src/gantt.scss';
-import { ResolvedTask } from './domain/resolvedTask';
-import { Task } from './domain/task';
-import { Options } from './domain/options';
-import { DateInfo } from './domain/dateInfo';
+import { ResolvedTask } from '../domain/resolvedTask';
+import { Task } from '../domain/task';
+import { Options } from '../domain/options';
+import { DateInfo } from '../domain/dateInfo';
 export declare type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
 export default class Gantt {
     private $svg;

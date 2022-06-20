@@ -1107,6 +1107,7 @@ var Gantt = (function () {
                 customPopupHtml: null,
                 language: 'ja',
                 columnNames: new Array(),
+                columnKeys: new Array(),
                 columnWidthForColumns: 120,
             };
             this.options = Object.assign(Object.assign({}, defaultOptions), options);
@@ -1128,22 +1129,22 @@ var Gantt = (function () {
                 else {
                     dependencies = [];
                 }
-                const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.start), endResolved: dateUtils.parse(task.end), hasPlanned: false, indexResolved: i, dependencies, columnNames: this.options.columnNames });
+                const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.planStartDate), endResolved: dateUtils.parse(task.planEndDate), hasPlanned: false, indexResolved: i, dependencies, columnNames: this.options.columnNames });
                 // make task invalid if duration too large
                 if (dateUtils.diff(resolvedTask.endResolved, resolvedTask.startResolved, 'year') > 10) {
                     resolvedTask.end = null;
                 }
                 // cache index
                 // invalid dates
-                if (!resolvedTask.start && !resolvedTask.end) {
+                if (!resolvedTask.planStartDate && !resolvedTask.planEndDate) {
                     const today = dateUtils.today();
                     resolvedTask.startResolved = today;
                     resolvedTask.endResolved = dateUtils.add(today, 2, 'day');
                 }
-                if (!resolvedTask.start && resolvedTask.end) {
+                if (!resolvedTask.planStartDate && resolvedTask.planEndDate) {
                     resolvedTask.startResolved = dateUtils.add(resolvedTask.endResolved, -2, 'day');
                 }
-                if (resolvedTask.start && !resolvedTask.end) {
+                if (resolvedTask.planStartDate && !resolvedTask.planEndDate) {
                     resolvedTask.endResolved = dateUtils.add(resolvedTask.startResolved, 2, 'day');
                 }
                 // if hours is not set, assume the last day is full day
@@ -1154,7 +1155,7 @@ var Gantt = (function () {
                     resolvedTask.endResolved = dateUtils.add(resolvedTask.endResolved, 24, 'hour');
                 }
                 // invalid flag
-                if (!resolvedTask.start || !resolvedTask.end) {
+                if (!resolvedTask.planStartDate || !resolvedTask.planEndDate) {
                     resolvedTask.invalid = true;
                 }
                 // uids
@@ -1164,8 +1165,8 @@ var Gantt = (function () {
                 // Planned start/finish.
                 if (task.plannedStart || task.plannedEnd) {
                     resolvedTask.hasPlanned = true;
-                    resolvedTask.plannedStartResolved = dateUtils.parse(task.plannedStart || task.start);
-                    resolvedTask.plannedEndResolved = dateUtils.parse(task.plannedEnd || task.end);
+                    resolvedTask.plannedStartResolved = dateUtils.parse(task.plannedStart || task.planStartDate);
+                    resolvedTask.plannedEndResolved = dateUtils.parse(task.plannedEnd || task.planEndDate);
                     // if hours is not set, assume the last day is full day
                     // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
                     const plannedTaskEndValues = dateUtils.getDateValues(resolvedTask.plannedEndResolved);
@@ -1533,11 +1534,11 @@ var Gantt = (function () {
                     + this.options.padding
                     + task.indexResolved * (this.options.barHeight + this.options.padding);
                 x = 60;
-                this.options.columnNames.forEach((column) => {
+                this.options.columnKeys.forEach((columnKey) => {
                     createSVG('text', {
                         x,
                         y: posY,
-                        innerHTML: getDefaultString(String(task[column])),
+                        innerHTML: getDefaultString(String(task[columnKey])),
                         class: 'lower-text',
                         append_to: this.columnLayers.date,
                     });
@@ -1689,7 +1690,7 @@ var Gantt = (function () {
                 return isDragging || isResizingLeft || isResizingRight;
             }
             // @ts-ignore Weird sorcery. I don't touch it and it keeps working.
-            $.on(this.$svg, 'mousedown', '.bar, .bar-progress, .handle', (e, element) => {
+            $.on(this.$svg, 'mousedown', '.bar-wrapper, .bar-progress, .handle', (e, element) => {
                 const barWrapper = $.closest('.bar-wrapper', element);
                 if (element.classList.contains('left')) {
                     isResizingLeft = true;

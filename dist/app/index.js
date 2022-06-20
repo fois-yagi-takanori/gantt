@@ -1,9 +1,9 @@
-import dateUtils from './utils/date.utils';
-import { $, createSVG } from './utils/svg.utils';
-import Bar from './app/bar';
-import Arrow from './app/arrow';
-import Popup from './app/popup';
-import * as stringUtils from './utils/string.utils';
+import dateUtils from '../utils/date.utils';
+import { $, createSVG } from '../utils/svg.utils';
+import Bar from './bar';
+import Arrow from './arrow';
+import Popup from './popup';
+import * as stringUtils from '../utils/string.utils';
 // eslint-disable-next-line import/no-useless-path-segments
 import '../src/gantt.scss';
 const VIEW_MODE = {

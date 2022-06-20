@@ -1,4 +1,4 @@
-import { ResolvedTask } from './index';
+import { ResolvedTask } from '../domain/resolvedTask';
 
 export interface PopupOptions {
   subtitle: string;

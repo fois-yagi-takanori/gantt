@@ -1,5 +1,5 @@
-import { createSVG } from './svgUtils';
-import Gantt from './index';
+import { createSVG } from '../utils/svg.utils';
+import Gantt from '../index';
 import Bar from './bar';
 
 export default class Arrow {

@@ -1,7 +1,8 @@
-import Gantt, { ResolvedTask } from '.';
-import dateUtils from './dateUtils';
-import { $, animateSVG, createSVG } from './svgUtils';
+import Gantt from '..';
+import dateUtils from '../utils/date.utils';
+import { $, animateSVG, createSVG } from '../utils/svg.utils';
 import Arrow from './arrow';
+import { ResolvedTask } from '../domain/resolvedTask';
 
 export default class Bar {
   private actionCompleted: boolean;

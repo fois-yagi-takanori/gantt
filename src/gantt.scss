@@ -9,6 +9,7 @@ $text-light: #555 !default;
 $text-color: #333 !default;
 $blue: #a3a3ff !default;
 $handle-color: #ddd !default;
+$column-width: 300px;
 
 .gantt {
 	.grid-background {
@@ -53,7 +54,8 @@ $handle-color: #ddd !default;
 		transition: stroke-width 0.3s ease;
 		user-select: none;
 	}
-	.bar-progress {
+
+  .bar-progress {
 		fill: $blue;
 	}
 	.bar-invalid {
@@ -171,5 +173,5 @@ $handle-color: #ddd !default;
 }
 .columns_svg {
   left: 50px;
-  width: 300px;
+  max-width: 300px;
 }
