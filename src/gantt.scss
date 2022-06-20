@@ -138,7 +138,7 @@ $column-width: 300px;
 .gantt-container {
   display: inline;
   position: absolute;
-  left:351px;
+  // left:351px;
   overflow: auto;
   font-size: 12px;
   width: 1000px;
@@ -173,5 +173,4 @@ $column-width: 300px;
 }
 .columns_svg {
   left: 50px;
-  max-width: 300px;
 }

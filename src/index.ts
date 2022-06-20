@@ -481,7 +481,7 @@ export default class Gantt {
 
       this.columnLayers[layer] = createSVG('g', {
         class: layer,
-        append_to: this.$columnSvg,
+        append_to: this.$columnSvg
       });
     });
   }
@@ -529,13 +529,15 @@ export default class Gantt {
 
     $.attr(this.$svg, {
       height: gridHeight + this.options.padding + 100,
-      width: '100%',
+      width: '100%'
     });
 
     $.attr(this.$columnSvg, {
       height: gridHeight + this.options.padding + 100,
       width: columnGridWidth,
     });
+
+    this.$container.style.left = `${columnGridWidth + 51}px`;
   }
 
   /**
