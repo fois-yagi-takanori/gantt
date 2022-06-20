@@ -100,11 +100,11 @@ export default class Bar {
     this.y = this.computeY();
     this.cornerRadius = this.gantt.options.barCornerRadius;
     this.duration = dateUtils.diff(this.task.endResolved, this.task.startResolved, 'hour')
-            / this.gantt.options.step;
+      / this.gantt.options.step;
     this.width = this.gantt.options.columnWidth * this.duration;
     this.progressWidth = this.gantt.options.columnWidth
-            * this.duration
-            * (this.task.progress / 100) || 0;
+      * this.duration
+      * (this.task.progress / 100) || 0;
     this.group = createSVG('g', {
       class: `bar-wrapper ${this.task.customClass || ''}`,
       'data-id': this.task.id,
@@ -122,7 +122,7 @@ export default class Bar {
       this.plannedX = this.computeX(true);
       this.plannedY = this.computeY();
       this.plannedDuration = dateUtils.diff(this.task.plannedEndResolved, this.task.plannedStartResolved, 'hour')
-                / this.gantt.options.step;
+        / this.gantt.options.step;
       this.plannedWidth = this.gantt.options.columnWidth * this.plannedDuration;
 
       this.plannedHandleGroup = createSVG('g', {
@@ -417,36 +417,31 @@ export default class Bar {
    * @param root0
    * @param root0.x
    * @param root0.width
-   * @param root0.planned
    */
   updateBarPosition({
     x = null,
-    width = null,
-    planned = false,
+    width = null
   }:
-  { x?: number | null, width?: number | null, planned: boolean }): void {
+    { x?: number | null, width?: number | null}): void {
     const bar = this.$bar;
-    const plannedBar = this.$plannedBar;
     if (x) {
-      if (!planned) {
-        // get all x values of parent task
-        const xs = this.task.dependencies.map((dep) => this.gantt.getBar(dep)
-          .$bar
-          .getX());
-        // child task must not go before parent
-        // @ts-ignore
-        const validX = xs.reduce((_prev, curr) => x >= curr, x);
-        if (!validX) {
-          // eslint-disable-next-line no-param-reassign
-          width = null;
+      // get all x values of parent task
+      const xs = this.task.dependencies.map((dep) => this.gantt.getBar(dep)
+        .$bar
+        .getX());
+      // child task must not go before parent
+      // @ts-ignore
+      const validX = xs.reduce((_prev, curr) => x >= curr, x);
+      if (!validX) {
+        // eslint-disable-next-line no-param-reassign
+        width = null;
 
-          return;
-        }
+        return;
       }
-      this.updateAttr(planned ? plannedBar : bar, 'x', x);
+      this.updateAttr(bar, 'x', x);
     }
     if (width && width >= this.gantt.options.columnWidth) {
-      this.updateAttr(planned ? plannedBar : bar, 'width', width);
+      this.updateAttr(bar, 'width', width);
     }
     this.updateLabelPosition();
     this.updateHandlePosition();
@@ -576,7 +571,7 @@ export default class Bar {
     let diff = dateUtils.diff(taskStart, ganttStart, 'hour');
     let x = (diff / step) * columnWidth;
 
-    if (this.gantt.viewIs('Month')) {
+    if (this.gantt.isView('Month')) {
       diff = dateUtils.diff(taskStart, ganttStart, 'day');
       x = (diff * columnWidth) / 30;
     }
@@ -590,8 +585,8 @@ export default class Bar {
   computeY(): number {
     return (
       this.gantt.options.headerHeight
-            + this.gantt.options.padding
-            + this.task.indexResolved * (this.height + this.gantt.options.padding)
+      + this.gantt.options.padding
+      + this.task.indexResolved * (this.height + this.gantt.options.padding)
     );
   }
 
@@ -604,27 +599,27 @@ export default class Bar {
     let rem;
     let position;
 
-    if (this.gantt.viewIs('Week')) {
+    if (this.gantt.isView('Week')) {
       rem = dx % (this.gantt.options.columnWidth / 7);
       position = odx
-                - rem
-                + (rem < this.gantt.options.columnWidth / 14
-                  ? 0
-                  : this.gantt.options.columnWidth / 7);
-    } else if (this.gantt.viewIs('Month')) {
+        - rem
+        + (rem < this.gantt.options.columnWidth / 14
+          ? 0
+          : this.gantt.options.columnWidth / 7);
+    } else if (this.gantt.isView('Month')) {
       rem = dx % (this.gantt.options.columnWidth / 30);
       position = odx
-                - rem
-                + (rem < this.gantt.options.columnWidth / 60
-                  ? 0
-                  : this.gantt.options.columnWidth / 30);
+        - rem
+        + (rem < this.gantt.options.columnWidth / 60
+          ? 0
+          : this.gantt.options.columnWidth / 30);
     } else {
       rem = dx % this.gantt.options.columnWidth;
       position = odx
-                - rem
-                + (rem < this.gantt.options.columnWidth / 2
-                  ? 0
-                  : this.gantt.options.columnWidth);
+        - rem
+        + (rem < this.gantt.options.columnWidth / 2
+          ? 0
+          : this.gantt.options.columnWidth);
     }
 
     return position;

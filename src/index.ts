@@ -226,7 +226,6 @@ export default class Gantt {
         ...task,
         startResolved: dateUtils.parse(task.planStartDate),
         endResolved: dateUtils.parse(task.planEndDate),
-        hasPlanned: false,
         indexResolved: i,
         dependencies,
         columnNames: this.options.columnNames,
@@ -402,13 +401,13 @@ export default class Gantt {
     this.ganttEnd = dateUtils.startOf(this.ganttEnd, 'day');
 
     // add date padding on both sides
-    if (this.viewIs([VIEW_MODE.QUARTER_DAY, VIEW_MODE.HALF_DAY])) {
+    if (this.isView([VIEW_MODE.QUARTER_DAY, VIEW_MODE.HALF_DAY])) {
       this.ganttStart = dateUtils.add(this.ganttStart, -7, 'day');
       this.ganttEnd = dateUtils.add(this.ganttEnd, 7, 'day');
-    } else if (this.viewIs(VIEW_MODE.MONTH)) {
+    } else if (this.isView(VIEW_MODE.MONTH)) {
       this.ganttStart = dateUtils.startOf(this.ganttStart, 'year');
       this.ganttEnd = dateUtils.add(this.ganttEnd, 1, 'year');
-    } else if (this.viewIs(VIEW_MODE.YEAR)) {
+    } else if (this.isView(VIEW_MODE.YEAR)) {
       this.ganttStart = dateUtils.add(this.ganttStart, -2, 'year');
       this.ganttEnd = dateUtils.add(this.ganttEnd, 2, 'year');
     } else {
@@ -427,9 +426,9 @@ export default class Gantt {
     while (currentDate === null || currentDate < this.ganttEnd) {
       if (!currentDate) {
         currentDate = dateUtils.clone(this.ganttStart);
-      } else if (this.viewIs(VIEW_MODE.YEAR)) {
+      } else if (this.isView(VIEW_MODE.YEAR)) {
         currentDate = dateUtils.add(currentDate, 1, 'year');
-      } else if (this.viewIs(VIEW_MODE.MONTH)) {
+      } else if (this.isView(VIEW_MODE.MONTH)) {
         currentDate = dateUtils.add(currentDate, 1, 'month');
       } else {
         currentDate = dateUtils.add(
@@ -638,19 +637,19 @@ export default class Gantt {
     this.dates.forEach((date) => {
       let tickClass = 'tick';
       // thick tick for monday
-      if (this.viewIs(VIEW_MODE.DAY) && date.getDate() === 1) {
+      if (this.isView(VIEW_MODE.DAY) && date.getDate() === 1) {
         tickClass += ' thick';
       }
       // thick tick for first week
       if (
-        this.viewIs(VIEW_MODE.WEEK)
+        this.isView(VIEW_MODE.WEEK)
         && date.getDate() >= 1
         && date.getDate() < 8
       ) {
         tickClass += ' thick';
       }
       // thick ticks for quarters
-      if (this.viewIs(VIEW_MODE.MONTH) && (date.getMonth() + 1) % 3 === 0) {
+      if (this.isView(VIEW_MODE.MONTH) && (date.getMonth() + 1) % 3 === 0) {
         tickClass += ' thick';
       }
 
@@ -660,7 +659,7 @@ export default class Gantt {
         append_to: this.layers.grid,
       });
 
-      if (this.viewIs(VIEW_MODE.MONTH)) {
+      if (this.isView(VIEW_MODE.MONTH)) {
         tickX
           += (dateUtils.getDaysInMonth(date)
             * this.options.columnWidth)
@@ -676,7 +675,7 @@ export default class Gantt {
    */
   makeGridHighlights(): void {
     // highlight today's date
-    if (this.viewIs(VIEW_MODE.DAY)) {
+    if (this.isView(VIEW_MODE.DAY)) {
       const x = (dateUtils.diff(dateUtils.today(), this.ganttStart, 'hour')
         / this.options.step)
         * this.options.columnWidth;
@@ -987,7 +986,7 @@ export default class Gantt {
         isResizingLeft = true;
       } else if (element.classList.contains('right')) {
         isResizingRight = true;
-      } else if (element.classList.contains('bar') || element.classList.contains('bar-progress')) {
+      } else if (element.classList.contains('bar-wrapper')) {
         isDragging = true;
       }
 
@@ -1022,31 +1021,28 @@ export default class Gantt {
       const dx = e.offsetX - xOnStart;
 
       bars.forEach((bar) => {
-        const $bar = draggingPlanned ? (bar.$plannedBar ?? bar.$bar) : bar.$bar;
+        const $bar = bar.$bar;
         $bar.finaldx = this.getSnapPosition(dx);
 
         if (isResizingLeft) {
           if (parentBarId === bar.task.id) {
             bar.updateBarPosition({
               x: $bar.ox + $bar.finaldx,
-              width: $bar.owidth - $bar.finaldx,
-              planned: draggingPlanned,
+              width: $bar.owidth - $bar.finaldx
             });
           } else {
             bar.updateBarPosition({
-              x: $bar.ox + $bar.finaldx,
-              planned: draggingPlanned,
+              x: $bar.ox + $bar.finaldx
             });
           }
         } else if (isResizingRight) {
           if (parentBarId === bar.task.id) {
             bar.updateBarPosition({
-              width: $bar.owidth + $bar.finaldx,
-              planned: draggingPlanned,
+              width: $bar.owidth + $bar.finaldx
             });
           }
         } else if (isDragging) {
-          bar.updateBarPosition({ x: $bar.ox + $bar.finaldx, planned: draggingPlanned });
+          bar.updateBarPosition({ x: $bar.ox + $bar.finaldx});
         }
       });
     });
@@ -1065,8 +1061,8 @@ export default class Gantt {
     $.on(this.$svg, 'mouseup', () => {
       this.barBeingDragged = null;
       bars.forEach((bar) => {
-        const { $bar, task, $plannedBar } = bar;
-        if (!$bar.finaldx && !(task.hasPlanned && $plannedBar.finaldx)) return;
+        const $bar = bar.$bar;
+        if (!$bar.finaldx) return;
         bar.dateChanged();
         bar.setActionCompleted();
       });
@@ -1153,14 +1149,14 @@ export default class Gantt {
     let rem;
     let position;
 
-    if (this.viewIs(VIEW_MODE.WEEK)) {
+    if (this.isView(VIEW_MODE.WEEK)) {
       rem = dx % (this.options.columnWidth / 7);
       position = odx
         - rem
         + (rem < this.options.columnWidth / 14
           ? 0
           : this.options.columnWidth / 7);
-    } else if (this.viewIs(VIEW_MODE.MONTH)) {
+    } else if (this.isView(VIEW_MODE.MONTH)) {
       rem = dx % (this.options.columnWidth / 30);
       position = odx
         - rem
@@ -1193,7 +1189,7 @@ export default class Gantt {
    *
    * @param modes
    */
-  viewIs(modes: ViewMode | ViewMode[]): boolean {
+  isView(modes: ViewMode | ViewMode[]): boolean {
     if (typeof modes === 'string') {
       return this.options.viewMode === modes;
     }
