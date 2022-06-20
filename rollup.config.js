@@ -1,4 +1,5 @@
 import sass from 'rollup-plugin-sass';
+import css from "rollup-plugin-import-css";
 import { terser } from 'rollup-plugin-terser';
 import merge from 'deepmerge';
 import typescript from '@rollup/plugin-typescript';
@@ -16,7 +17,11 @@ const dev = {
     typescript(),
     sass({
       output: 'dist/frappe-gantt.css',
+    }),
+    css({
+      output: 'dist/main.css'
     })
+    // del({ targets: 'dist/*' })
   ],
 };
 const prod = merge(dev, {
@@ -26,7 +31,7 @@ const prod = merge(dev, {
   },
   plugins: [
     terser(),
-    del({ targets: 'dist/*' })
+   
   ],
 });
 
