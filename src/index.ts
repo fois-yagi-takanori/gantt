@@ -8,6 +8,7 @@ import { Task } from './domain/task';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
 import Popup, { PopupOptions } from './app/popup';
+import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 
 export type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
@@ -103,6 +104,12 @@ export default class Gantt {
     // initialize with default view mode
     this.changeViewMode();
     this.bindEvents();
+    Split({
+      columnGutters: [{
+        track: 1,
+        element: document.querySelector('.gutter-col-1'),
+      }],
+    });
   }
 
   /**
@@ -114,6 +121,7 @@ export default class Gantt {
   setupWrapper(elementReference: string | HTMLElement | SVGElement | unknown): void {
     let svgElement;
     let wrapperElement;
+    const gutterElement = document.createElement('div');
 
     let resolvedElementReference: HTMLElement | SVGElement | unknown;
 
@@ -135,7 +143,7 @@ export default class Gantt {
         + ' HTML DOM element or SVG DOM element for the \'element\' parameter');
     }
 
-    wrapperElement.classList.add('split');
+    wrapperElement.classList.add('grid');
 
     // svg element
     if (!svgElement) {
@@ -167,6 +175,10 @@ export default class Gantt {
     this.$columnContainer.classList.add('columns_svg');
     this.$columnContainer.id = 'columns_svg';
 
+    gutterElement.classList.add('gutter-col');
+    gutterElement.classList.add('gutter-col-1');
+    gutterElement.style.gridTemplateColumns = '1fr 10px 2.5fr';
+
     const { parentElement } = this.$svg.parentElement;
     parentElement.appendChild(this.$columnContainer);
     parentElement.appendChild(this.$container);
@@ -179,6 +191,7 @@ export default class Gantt {
     this.$container.appendChild(this.popupWrapper);
 
     wrapperElement.appendChild(this.$columnContainer);
+    wrapperElement.appendChild(gutterElement);
     wrapperElement.appendChild(this.$container);
   }
 
@@ -544,7 +557,7 @@ export default class Gantt {
       width: columnGridWidth,
     });
 
-    this.$container.style.left = `${columnGridWidth + 51}px`;
+    // this.$container.style.left = `${columnGridWidth + 51}px`;
   }
 
   /**

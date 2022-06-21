@@ -10,7 +10,7 @@
     "editor.formatOnSave": true
   },
   "files.exclude": {
-    "node_modules/**": true, // npmパッケージ
+    // "node_modules/**": true, // npmパッケージ
     // "dist/**": true // リリースモジュール
   },
   "files.eol": "\n",

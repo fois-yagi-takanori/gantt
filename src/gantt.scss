@@ -141,7 +141,7 @@ $column-width: 300px;
   // left:351px;
   overflow: auto;
   font-size: 12px;
-  width: 1000px;
+  // width: 1000px;
 
 	.popup-wrapper {
 		position: absolute;
@@ -173,4 +173,14 @@ $column-width: 300px;
 }
 .columns_svg {
   left: 50px;
+}
+
+.gutter-col {
+  grid-row: 1/-1;
+  cursor: col-resize;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+}
+
+.gutter-col-1 {
+  grid-column: 2;
 }

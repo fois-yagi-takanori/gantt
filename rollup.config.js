@@ -35,4 +35,14 @@ const prod = merge(dev, {
   ],
 });
 
-export default [dev, prod];
+const libJs = [
+  {
+    input: 'node_modules/split-grid/dist/split-grid.min.js',
+    output: {
+      file: 'dist/split-grid.min.js',
+      format: 'iife'
+    }
+  }
+]
+
+export default [dev, prod, ...libJs];

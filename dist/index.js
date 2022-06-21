@@ -4,6 +4,7 @@ import { $, createSVG } from './utils/svg.utils';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
 import Popup from './app/popup';
+import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 const VIEW_MODE = {
     QUARTER_DAY: 'Quarter Day',
@@ -42,6 +43,12 @@ export default class Gantt {
         // initialize with default view mode
         this.changeViewMode();
         this.bindEvents();
+        Split({
+            columnGutters: [{
+                    track: 1,
+                    element: document.querySelector('.gutter-col-1'),
+                }],
+        });
     }
     /**
      * 大枠作成
@@ -52,6 +59,7 @@ export default class Gantt {
     setupWrapper(elementReference) {
         let svgElement;
         let wrapperElement;
+        const gutterElement = document.createElement('div');
         let resolvedElementReference;
         // CSS Selector is passed
         if (typeof elementReference === 'string') {
@@ -72,7 +80,7 @@ export default class Gantt {
             throw new TypeError('Frappé Gantt only supports usage of a string CSS selector,'
                 + ' HTML DOM element or SVG DOM element for the \'element\' parameter');
         }
-        wrapperElement.classList.add('split');
+        wrapperElement.classList.add('grid');
         // svg element
         if (!svgElement) {
             // create it
@@ -101,6 +109,9 @@ export default class Gantt {
         this.$columnContainer.classList.add('gantt-container');
         this.$columnContainer.classList.add('columns_svg');
         this.$columnContainer.id = 'columns_svg';
+        gutterElement.classList.add('gutter-col');
+        gutterElement.classList.add('gutter-col-1');
+        gutterElement.style.gridTemplateColumns = '1fr 10px 2.5fr';
         const { parentElement } = this.$svg.parentElement;
         parentElement.appendChild(this.$columnContainer);
         parentElement.appendChild(this.$container);
@@ -111,6 +122,7 @@ export default class Gantt {
         this.popupWrapper.classList.add('popup-wrapper');
         this.$container.appendChild(this.popupWrapper);
         wrapperElement.appendChild(this.$columnContainer);
+        wrapperElement.appendChild(gutterElement);
         wrapperElement.appendChild(this.$container);
     }
     /**
@@ -433,7 +445,7 @@ export default class Gantt {
             height: gridHeight + this.options.padding + 100,
             width: columnGridWidth,
         });
-        this.$container.style.left = `${columnGridWidth + 51}px`;
+        // this.$container.style.left = `${columnGridWidth + 51}px`;
     }
     /**
      *

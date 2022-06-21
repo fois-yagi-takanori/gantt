@@ -1,5 +1,9 @@
-var Gantt = (function () {
+var Gantt = (function (Split) {
     'use strict';
+
+    function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
+
+    var Split__default = /*#__PURE__*/_interopDefaultLegacy(Split);
 
     /**
      * 文字列の判定処理
@@ -1270,6 +1274,12 @@ var Gantt = (function () {
             // initialize with default view mode
             this.changeViewMode();
             this.bindEvents();
+            Split__default["default"]({
+                columnGutters: [{
+                        track: 1,
+                        element: document.querySelector('.gutter-col-1'),
+                    }],
+            });
         }
         /**
          * 大枠作成
@@ -1280,6 +1290,7 @@ var Gantt = (function () {
         setupWrapper(elementReference) {
             let svgElement;
             let wrapperElement;
+            const gutterElement = document.createElement('div');
             let resolvedElementReference;
             // CSS Selector is passed
             if (typeof elementReference === 'string') {
@@ -1300,7 +1311,7 @@ var Gantt = (function () {
                 throw new TypeError('Frappé Gantt only supports usage of a string CSS selector,'
                     + ' HTML DOM element or SVG DOM element for the \'element\' parameter');
             }
-            wrapperElement.classList.add('split');
+            wrapperElement.classList.add('grid');
             // svg element
             if (!svgElement) {
                 // create it
@@ -1329,6 +1340,9 @@ var Gantt = (function () {
             this.$columnContainer.classList.add('gantt-container');
             this.$columnContainer.classList.add('columns_svg');
             this.$columnContainer.id = 'columns_svg';
+            gutterElement.classList.add('gutter-col');
+            gutterElement.classList.add('gutter-col-1');
+            gutterElement.style.gridTemplateColumns = '1fr 10px 2.5fr';
             const { parentElement } = this.$svg.parentElement;
             parentElement.appendChild(this.$columnContainer);
             parentElement.appendChild(this.$container);
@@ -1339,6 +1353,7 @@ var Gantt = (function () {
             this.popupWrapper.classList.add('popup-wrapper');
             this.$container.appendChild(this.popupWrapper);
             wrapperElement.appendChild(this.$columnContainer);
+            wrapperElement.appendChild(gutterElement);
             wrapperElement.appendChild(this.$container);
         }
         /**
@@ -1661,7 +1676,7 @@ var Gantt = (function () {
                 height: gridHeight + this.options.padding + 100,
                 width: columnGridWidth,
             });
-            this.$container.style.left = `${columnGridWidth + 51}px`;
+            // this.$container.style.left = `${columnGridWidth + 51}px`;
         }
         /**
          *
@@ -2318,5 +2333,5 @@ var Gantt = (function () {
 
     return Gantt;
 
-})();
+})(Split);
 //# sourceMappingURL=frappe-gantt.js.map
