@@ -1,4 +1,3 @@
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../src/gantt.scss';
 import { DateInfo } from './domain/dateInfo';
 import { Options } from './domain/options';

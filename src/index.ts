@@ -1,4 +1,3 @@
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import '../src/gantt.scss';
 import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
