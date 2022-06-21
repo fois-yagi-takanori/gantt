@@ -16,7 +16,12 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "declaration": true,
-    "outDir": "dist"
+    "baseUrl": "./src",
+    "outDir": "dist",
+    "paths": {"*": ["types/*"]},
+    "typeRoots": ["types", "node_modules/@types"],
+    "declarationDir": "types",
+    "types":["node"]
   },
   "include": [
     "src",

@@ -20,8 +20,8 @@ const dev = {
     }),
     css({
       output: 'dist/main.css'
-    })
-    // del({ targets: 'dist/*' })
+    }),
+    // del({ targets: 'types/*' })
   ],
 };
 const prod = merge(dev, {
