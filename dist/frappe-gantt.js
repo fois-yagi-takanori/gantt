@@ -857,7 +857,6 @@ var Gantt = (function (Split) {
                     // just finished a move action, wait for a few seconds
                     return;
                 }
-                this.showPopup();
                 this.gantt.unselectAll();
                 this.group.classList.add('active');
             });
@@ -867,23 +866,6 @@ var Gantt = (function (Split) {
                     return;
                 }
                 this.gantt.triggerEvent('Click', [this.task]);
-            });
-        }
-        /**
-         *
-         */
-        showPopup() {
-            if (this.gantt.barBeingDragged)
-                return;
-            const startDate = dateUtils.format(this.task.startResolved, 'MMM D', this.gantt.options.language);
-            const endDate = dateUtils.format(dateUtils.add(this.task.endResolved, -1, 'second'), 'MMM D', this.gantt.options.language);
-            const subtitle = `${startDate} - ${endDate}`;
-            this.gantt.showPopup({
-                // @ts-ignore
-                targetElement: this.$bar,
-                title: this.task.name,
-                subtitle,
-                task: this.task,
             });
         }
         /**
@@ -1167,73 +1149,6 @@ var Gantt = (function (Split) {
                 if (this.plannedHandleGroup)
                     this.plannedHandleGroup.classList.remove('visible');
             }
-        }
-    }
-
-    class Popup {
-        constructor(parent, custom_html) {
-            this.parent = parent;
-            this.customHtml = custom_html;
-            this.make();
-        }
-        make() {
-            this.parent.innerHTML = `
-            <div class="title"></div>
-            <div class="subtitle"></div>
-            <div class="pointer"></div>
-        `;
-            this.hide();
-            this.title = this.parent.querySelector('.title');
-            this.subtitle = this.parent.querySelector('.subtitle');
-            this.pointer = this.parent.querySelector('.pointer');
-        }
-        show(options) {
-            if (!options.targetElement) {
-                throw new Error('targetElement is required to show popup');
-            }
-            if (!options.position) {
-                // eslint-disable-next-line no-param-reassign
-                options.position = 'left';
-            }
-            const { targetElement } = options;
-            if (this.customHtml) {
-                let html;
-                if (typeof this.customHtml === 'string') {
-                    html = this.customHtml;
-                }
-                else {
-                    html = this.customHtml(options.task);
-                }
-                html += '<div class="pointer"></div>';
-                this.parent.innerHTML = html;
-                this.pointer = this.parent.querySelector('.pointer');
-            }
-            else {
-                // set data
-                this.title.innerHTML = options.title;
-                this.subtitle.innerHTML = options.subtitle;
-                this.parent.style.width = `${this.parent.clientWidth}px`;
-            }
-            // set position
-            let positionMeta;
-            if (targetElement instanceof HTMLElement) {
-                positionMeta = targetElement.getBoundingClientRect();
-            }
-            else if (targetElement instanceof SVGElement) {
-                positionMeta = options.targetElement.getBBox();
-            }
-            if (options.position === 'left') {
-                this.parent.style.left = `${positionMeta.x + (positionMeta.width + 10)}px`;
-                this.parent.style.top = `${positionMeta.y}px`;
-                this.pointer.style.transform = 'rotateZ(90deg)';
-                this.pointer.style.left = '-7px';
-                this.pointer.style.top = '2px';
-            }
-            // show
-            this.parent.style.opacity = String(1);
-        }
-        hide() {
-            this.parent.style.opacity = String(0);
         }
     }
 
@@ -2027,12 +1942,11 @@ var Gantt = (function (Split) {
                 - this.options.columnWidth;
         }
         /**
-         *
+         * バー押下イベント
          */
         bindGridClick() {
             $.on(this.$svg, this.options.popupTrigger, '.grid-row, .grid-header', () => {
                 this.unselectAll();
-                this.hidePopup();
             });
         }
         // eslint-disable-next-line max-lines-per-function
@@ -2263,23 +2177,6 @@ var Gantt = (function (Split) {
          */
         getBar(id) {
             return this.bars.find((bar) => bar.task.id === id);
-        }
-        /**
-         *
-         * @param options
-         */
-        showPopup(options) {
-            if (!this.popup) {
-                this.popup = new Popup(this.popupWrapper, this.options.customPopupHtml);
-            }
-            this.popup.show(options);
-        }
-        /**
-         *
-         */
-        hidePopup() {
-            if (this.popup)
-                this.popup.hide();
         }
         /**
          *

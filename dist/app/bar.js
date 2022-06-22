@@ -298,7 +298,6 @@ export default class Bar {
                 // just finished a move action, wait for a few seconds
                 return;
             }
-            this.showPopup();
             this.gantt.unselectAll();
             this.group.classList.add('active');
         });
@@ -308,23 +307,6 @@ export default class Bar {
                 return;
             }
             this.gantt.triggerEvent('Click', [this.task]);
-        });
-    }
-    /**
-     *
-     */
-    showPopup() {
-        if (this.gantt.barBeingDragged)
-            return;
-        const startDate = dateUtils.format(this.task.startResolved, 'MMM D', this.gantt.options.language);
-        const endDate = dateUtils.format(dateUtils.add(this.task.endResolved, -1, 'second'), 'MMM D', this.gantt.options.language);
-        const subtitle = `${startDate} - ${endDate}`;
-        this.gantt.showPopup({
-            // @ts-ignore
-            targetElement: this.$bar,
-            title: this.task.name,
-            subtitle,
-            task: this.task,
         });
     }
     /**

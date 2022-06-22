@@ -7,7 +7,6 @@ import { ResolvedTask } from './domain/resolvedTask';
 import { Task } from './domain/task';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
-import Popup, { PopupOptions } from './app/popup';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 
@@ -77,8 +76,6 @@ export default class Gantt {
   private bars: Bar[];
 
   private arrows: Arrow[];
-
-  private popup: Popup;
 
   private sortKey: (a: ResolvedTask, b: ResolvedTask) => number;
 
@@ -971,7 +968,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * バー押下イベント
    */
   bindGridClick(): void {
     $.on(
@@ -980,7 +977,6 @@ export default class Gantt {
       '.grid-row, .grid-header',
       () => {
         this.unselectAll();
-        this.hidePopup();
       },
     );
   }
@@ -1237,27 +1233,6 @@ export default class Gantt {
    */
   getBar(id: string): Bar {
     return this.bars.find((bar) => bar.task.id === id);
-  }
-
-  /**
-   *
-   * @param options
-   */
-  showPopup(options: PopupOptions): void {
-    if (!this.popup) {
-      this.popup = new Popup(
-        this.popupWrapper,
-        this.options.customPopupHtml,
-      );
-    }
-    this.popup.show(options);
-  }
-
-  /**
-   *
-   */
-  hidePopup(): void {
-    if (this.popup) this.popup.hide();
   }
 
   /**

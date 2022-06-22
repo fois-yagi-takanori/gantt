@@ -4,7 +4,6 @@ import { Options } from './domain/options';
 import { ResolvedTask } from './domain/resolvedTask';
 import { Task } from './domain/task';
 import Bar from './app/bar';
-import { PopupOptions } from './app/popup';
 export declare type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
 /**
  *
@@ -26,7 +25,6 @@ export default class Gantt {
     private columnLayers;
     private bars;
     private arrows;
-    private popup;
     private sortKey;
     static VIEW_MODE: {
         QUARTER_DAY: 'Quarter Day';
@@ -169,7 +167,7 @@ export default class Gantt {
      */
     setScrollPosition(): void;
     /**
-     *
+     * バー押下イベント
      */
     bindGridClick(): void;
     bindBarEvents(): void;
@@ -206,15 +204,6 @@ export default class Gantt {
      * @param id
      */
     getBar(id: string): Bar;
-    /**
-     *
-     * @param options
-     */
-    showPopup(options: PopupOptions): void;
-    /**
-     *
-     */
-    hidePopup(): void;
     /**
      *
      * @param event

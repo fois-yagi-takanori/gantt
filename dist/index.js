@@ -3,7 +3,6 @@ import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
-import Popup from './app/popup';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 const VIEW_MODE = {
@@ -796,12 +795,11 @@ export default class Gantt {
             - this.options.columnWidth;
     }
     /**
-     *
+     * バー押下イベント
      */
     bindGridClick() {
         $.on(this.$svg, this.options.popupTrigger, '.grid-row, .grid-header', () => {
             this.unselectAll();
-            this.hidePopup();
         });
     }
     // eslint-disable-next-line max-lines-per-function
@@ -1032,23 +1030,6 @@ export default class Gantt {
      */
     getBar(id) {
         return this.bars.find((bar) => bar.task.id === id);
-    }
-    /**
-     *
-     * @param options
-     */
-    showPopup(options) {
-        if (!this.popup) {
-            this.popup = new Popup(this.popupWrapper, this.options.customPopupHtml);
-        }
-        this.popup.show(options);
-    }
-    /**
-     *
-     */
-    hidePopup() {
-        if (this.popup)
-            this.popup.hide();
     }
     /**
      *

@@ -89,10 +89,6 @@ export default class Bar {
     setupClickEvent(): void;
     /**
      *
-     */
-    showPopup(): void;
-    /**
-     *
      * @param root0
      * @param root0.x
      * @param root0.width
