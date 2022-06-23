@@ -13,7 +13,6 @@ export interface Options {
     viewMode?: ViewMode;
     dateFormat?: string;
     customPopupHtml?: string | null;
-    popupTrigger?: string;
     language?: Language;
     columnNames: string[];
     columnKeys: string[];

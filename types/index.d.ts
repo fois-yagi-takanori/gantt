@@ -166,10 +166,6 @@ export default class Gantt {
      *
      */
     setScrollPosition(): void;
-    /**
-     * バー押下イベント
-     */
-    bindGridClick(): void;
     bindBarEvents(): void;
     /**
      *

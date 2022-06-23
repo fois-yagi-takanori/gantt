@@ -621,7 +621,6 @@ var Gantt = (function (Split) {
          * @param task
          */
         setDefaults(gantt, task) {
-            this.actionCompleted = false;
             this.gantt = gantt;
             this.task = task;
         }
@@ -845,28 +844,7 @@ var Gantt = (function (Split) {
         bind() {
             if (this.invalid)
                 return;
-            this.setupClickEvent();
             this.setupHoverEvent();
-        }
-        /**
-         *
-         */
-        setupClickEvent() {
-            $.on(this.group, `focus ${this.gantt.options.popupTrigger}`, () => {
-                if (this.actionCompleted) {
-                    // just finished a move action, wait for a few seconds
-                    return;
-                }
-                this.gantt.unselectAll();
-                this.group.classList.add('active');
-            });
-            $.on(this.group, 'dblclick', () => {
-                if (this.actionCompleted) {
-                    // just finished a move action, wait for a few seconds
-                    return;
-                }
-                this.gantt.triggerEvent('Click', [this.task]);
-            });
         }
         /**
          *
@@ -947,15 +925,6 @@ var Gantt = (function (Split) {
             const newProgress = this.computeProgress();
             this.task.progress = newProgress;
             this.gantt.triggerEvent('ProgressChange', [this.task, newProgress]);
-        }
-        /**
-         *
-         */
-        setActionCompleted() {
-            this.actionCompleted = true;
-            setTimeout(() => {
-                this.actionCompleted = false;
-            }, 1000);
         }
         /**
          *
@@ -1287,7 +1256,6 @@ var Gantt = (function (Split) {
                 padding: 18,
                 viewMode: 'Day',
                 dateFormat: 'YYYY-MM-DD',
-                popupTrigger: 'click',
                 customPopupHtml: null,
                 language: 'ja',
                 columnNames: new Array(),
@@ -1349,19 +1317,6 @@ var Gantt = (function (Split) {
                 // uids
                 if (!resolvedTask.id) {
                     resolvedTask.id = generateId(resolvedTask);
-                }
-                // Planned start/finish.
-                if (task.plannedStart || task.plannedEnd) {
-                    resolvedTask.hasPlanned = true;
-                    resolvedTask.plannedStartResolved = dateUtils.parse(task.plannedStart || task.planStartDate);
-                    resolvedTask.plannedEndResolved = dateUtils.parse(task.plannedEnd || task.planEndDate);
-                    // if hours is not set, assume the last day is full day
-                    // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
-                    const plannedTaskEndValues = dateUtils.getDateValues(resolvedTask.plannedEndResolved);
-                    if (plannedTaskEndValues.slice(3)
-                        .every((d) => d === 0)) {
-                        resolvedTask.plannedEndResolved = dateUtils.add(resolvedTask.plannedEndResolved, 24, 'hour');
-                    }
                 }
                 return resolvedTask;
             });
@@ -1510,7 +1465,6 @@ var Gantt = (function (Split) {
          *
          */
         bindEvents() {
-            this.bindGridClick();
             this.bindBarEvents();
         }
         /**
@@ -1941,14 +1895,6 @@ var Gantt = (function (Split) {
                 * this.options.columnWidth
                 - this.options.columnWidth;
         }
-        /**
-         * バー押下イベント
-         */
-        bindGridClick() {
-            $.on(this.$svg, this.options.popupTrigger, '.grid-row, .grid-header', () => {
-                this.unselectAll();
-            });
-        }
         // eslint-disable-next-line max-lines-per-function
         bindBarEvents() {
             let isDragging = false;
@@ -2043,7 +1989,6 @@ var Gantt = (function (Split) {
                     if (!$bar.finaldx)
                         return;
                     bar.dateChanged();
-                    bar.setActionCompleted();
                 });
             });
             this.bindBarProgress();
@@ -2091,7 +2036,6 @@ var Gantt = (function (Split) {
                 if (!($barProgress && $barProgress.finaldx))
                     return;
                 bar.progressChanged();
-                bar.setActionCompleted();
             });
         }
         /**

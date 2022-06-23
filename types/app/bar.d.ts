@@ -5,7 +5,6 @@ import Gantt from '..';
  *
  */
 export default class Bar {
-    private actionCompleted;
     private gantt;
     task: ResolvedTask;
     private invalid;
@@ -85,10 +84,6 @@ export default class Bar {
     bind(): void;
     /**
      *
-     */
-    setupClickEvent(): void;
-    /**
-     *
      * @param root0
      * @param root0.x
      * @param root0.width
@@ -105,10 +100,6 @@ export default class Bar {
      *
      */
     progressChanged(): void;
-    /**
-     *
-     */
-    setActionCompleted(): void;
     /**
      *
      * @param planned

@@ -208,7 +208,6 @@ export default class Gantt {
       padding: 18,
       viewMode: 'Day',
       dateFormat: 'YYYY-MM-DD',
-      popupTrigger: 'click',
       customPopupHtml: null,
       language: 'ja',
       columnNames: new Array<string>(),
@@ -286,21 +285,6 @@ export default class Gantt {
       // uids
       if (!resolvedTask.id) {
         resolvedTask.id = generateId(resolvedTask);
-      }
-
-      // Planned start/finish.
-      if (task.plannedStart || task.plannedEnd) {
-        resolvedTask.hasPlanned = true;
-        resolvedTask.plannedStartResolved = dateUtils.parse(task.plannedStart || task.planStartDate);
-        resolvedTask.plannedEndResolved = dateUtils.parse(task.plannedEnd || task.planEndDate);
-
-        // if hours is not set, assume the last day is full day
-        // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
-        const plannedTaskEndValues = dateUtils.getDateValues(resolvedTask.plannedEndResolved);
-        if (plannedTaskEndValues.slice(3)
-          .every((d) => d === 0)) {
-          resolvedTask.plannedEndResolved = dateUtils.add(resolvedTask.plannedEndResolved, 24, 'hour');
-        }
       }
 
       return resolvedTask;
@@ -462,7 +446,6 @@ export default class Gantt {
    *
    */
   bindEvents(): void {
-    this.bindGridClick();
     this.bindBarEvents();
   }
 
@@ -967,20 +950,6 @@ export default class Gantt {
       - this.options.columnWidth;
   }
 
-  /**
-   * バー押下イベント
-   */
-  bindGridClick(): void {
-    $.on(
-      this.$svg,
-      this.options.popupTrigger,
-      '.grid-row, .grid-header',
-      () => {
-        this.unselectAll();
-      },
-    );
-  }
-
   // eslint-disable-next-line max-lines-per-function
   bindBarEvents(): void {
     let isDragging = false;
@@ -1082,7 +1051,6 @@ export default class Gantt {
         const $bar = bar.$bar;
         if (!$bar.finaldx) return;
         bar.dateChanged();
-        bar.setActionCompleted();
       });
     });
 
@@ -1138,7 +1106,6 @@ export default class Gantt {
       isResizing = false;
       if (!($barProgress && $barProgress.finaldx)) return;
       bar.progressChanged();
-      bar.setActionCompleted();
     });
   }
 

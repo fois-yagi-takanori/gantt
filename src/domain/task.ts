@@ -4,8 +4,6 @@ export interface Task {
   planStartDate: string | Date,
   planEndDate: string | Date,
   progress: number,
-  plannedStart: string | Date,
-  plannedEnd: string | Date,
   dependencies?: string | string[],
   customClass?: string,
   color?: string,

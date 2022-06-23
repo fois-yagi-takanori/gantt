@@ -8,7 +8,6 @@ import dateUtils from '../utils/date.utils';
  *
  */
 export default class Bar {
-  private actionCompleted: boolean;
 
   private gantt: Gantt;
 
@@ -77,7 +76,6 @@ export default class Bar {
    * @param task
    */
   setDefaults(gantt: Gantt, task: ResolvedTask): void {
-    this.actionCompleted = false;
     this.gantt = gantt;
     this.task = task;
   }
@@ -360,32 +358,7 @@ export default class Bar {
    */
   bind(): void {
     if (this.invalid) return;
-    this.setupClickEvent();
     this.setupHoverEvent();
-  }
-
-  /**
-   *
-   */
-  setupClickEvent(): void {
-    $.on(this.group, `focus ${this.gantt.options.popupTrigger}`, () => {
-      if (this.actionCompleted) {
-        // just finished a move action, wait for a few seconds
-        return;
-      }
-
-      this.gantt.unselectAll();
-      this.group.classList.add('active');
-    });
-
-    $.on(this.group, 'dblclick', () => {
-      if (this.actionCompleted) {
-        // just finished a move action, wait for a few seconds
-        return;
-      }
-
-      this.gantt.triggerEvent('Click', [this.task]);
-    });
   }
 
   /**
@@ -486,16 +459,6 @@ export default class Bar {
     const newProgress = this.computeProgress();
     this.task.progress = newProgress;
     this.gantt.triggerEvent('ProgressChange', [this.task, newProgress]);
-  }
-
-  /**
-   *
-   */
-  setActionCompleted(): void {
-    this.actionCompleted = true;
-    setTimeout(() => {
-      this.actionCompleted = false;
-    }, 1000);
   }
 
   /**
