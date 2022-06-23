@@ -1,8 +1,8 @@
 export interface DateInfo {
-  upper_y: string | number | Element;
-  upper_x: string | number | Element;
-  upper_text: string | number | Element;
-  lower_text: string | number | Element;
-  lower_y: string | number | Element;
-  lower_x: string | number | Element;
+  upperY: string | number | Element;
+  upperX: string | number | Element;
+  upperText: string | number | Element;
+  lowerText: string | number | Element;
+  lowerY: string | number | Element;
+  lowerX: string | number | Element;
 }

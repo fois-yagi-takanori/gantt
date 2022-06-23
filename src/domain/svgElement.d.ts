@@ -12,7 +12,7 @@ declare global {
     owidth: number;
     oheight: number;
     finaldx: number;
-    min_dx: number;
-    max_dx: number;
+    minDx: number;
+    maxDx: number;
   }
 }
