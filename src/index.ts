@@ -707,18 +707,18 @@ export default class Gantt {
     for (let i = 0; i < this.getDatesToDraw().length; i += 1) {
       const date = this.getDatesToDraw()[i];
       createSVG('text', {
-        x: date.lower_x,
-        y: date.lower_y,
-        innerHTML: date.lower_text,
+        x: date.lowerX,
+        y: date.lowerY,
+        innerHTML: date.lowerText,
         class: 'lower-text',
         append_to: this.layers.date,
       });
 
-      if (date.upper_text) {
+      if (date.upperText) {
         const $upperText = createSVG('text', {
-          x: date.upper_x,
-          y: date.upper_y,
-          innerHTML: date.upper_text,
+          x: date.upperX,
+          y: date.upperY,
+          innerHTML: date.upperText,
           class: 'upper-text',
           append_to: this.layers.date,
         }) as SVGGraphicsElement;
@@ -860,12 +860,12 @@ export default class Gantt {
     };
 
     return {
-      upper_text: dateText[`${this.options.viewMode}_upper`],
-      lower_text: dateText[`${this.options.viewMode}_lower`],
-      upper_x: basePos.x + xPos[`${this.options.viewMode}_upper`],
-      upper_y: basePos.upper_y,
-      lower_x: basePos.x + xPos[`${this.options.viewMode}_lower`],
-      lower_y: basePos.lower_y,
+      upperText: dateText[`${this.options.viewMode}_upper`],
+      lowerText: dateText[`${this.options.viewMode}_lower`],
+      upperX: basePos.x + xPos[`${this.options.viewMode}_upper`],
+      upperY: basePos.upper_y,
+      lowerX: basePos.x + xPos[`${this.options.viewMode}_lower`],
+      lowerY: basePos.lower_y,
     };
   }
 
@@ -1081,19 +1081,19 @@ export default class Gantt {
 
       $barProgress.finaldx = 0;
       $barProgress.owidth = $barProgress.getWidth();
-      $barProgress.min_dx = -$barProgress.getWidth();
-      $barProgress.max_dx = $bar.getWidth() - $barProgress.getWidth();
+      $barProgress.minDx = -$barProgress.getWidth();
+      $barProgress.maxDx = $bar.getWidth() - $barProgress.getWidth();
     });
 
     $.on(this.$svg, 'mousemove', (e: MouseEvent) => {
       if (!isResizing) return;
       let dx = e.offsetX - xOnStart;
 
-      if (dx > $barProgress.max_dx) {
-        dx = $barProgress.max_dx;
+      if (dx > $barProgress.maxDx) {
+        dx = $barProgress.maxDx;
       }
-      if (dx < $barProgress.min_dx) {
-        dx = $barProgress.min_dx;
+      if (dx < $barProgress.minDx) {
+        dx = $barProgress.minDx;
       }
 
       const $handle = bar.$handleProgress;
