@@ -142,8 +142,7 @@ export default class Gantt {
             dateFormat: 'YYYY-MM-DD',
             customPopupHtml: null,
             language: 'ja',
-            columnNames: new Array(),
-            columnKeys: new Array(),
+            columns: new Array(),
             columnWidthForColumns: 120,
         };
         this.options = Object.assign(Object.assign({}, defaultOptions), options);
@@ -169,7 +168,7 @@ export default class Gantt {
             else {
                 dependencies = [];
             }
-            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.planStartDate), endResolved: dateUtils.parse(task.planEndDate), indexResolved: i, dependencies, columnNames: this.options.columnNames });
+            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.planStartDate), endResolved: dateUtils.parse(task.planEndDate), indexResolved: i, dependencies });
             // make task invalid if duration too large
             if (dateUtils.diff(resolvedTask.endResolved, resolvedTask.startResolved, 'year') > 10) {
                 resolvedTask.end = null;
@@ -400,7 +399,7 @@ export default class Gantt {
      */
     makeGridBackground() {
         const gridWidth = this.dates.length * this.options.columnWidth;
-        const columnGridWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
+        const columnGridWidth = this.options.columns.length * this.options.columnWidthForColumns;
         const gridHeight = this.options.headerHeight
             + this.options.padding
             + (this.options.barHeight + this.options.padding)
@@ -441,7 +440,7 @@ export default class Gantt {
         const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
         const rowWidth = this.dates.length * this.options.columnWidth;
         const rowHeight = this.options.barHeight + this.options.padding;
-        const columnRowWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
+        const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
         let rowY = this.options.headerHeight + this.options.padding / 2;
         this.tasks.forEach((task) => {
             task.gridRow = createSVG('rect', {
@@ -498,7 +497,7 @@ export default class Gantt {
      *
      */
     makeColumnsGridHeader() {
-        const headerWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
+        const headerWidth = this.options.columns.length * this.options.columnWidthForColumns;
         const headerHeight = this.options.headerHeight + 10;
         createSVG('rect', {
             x: 0,
@@ -581,17 +580,17 @@ export default class Gantt {
         for (let i = 0; i < this.getDatesToDraw().length; i += 1) {
             const date = this.getDatesToDraw()[i];
             createSVG('text', {
-                x: date.lower_x,
-                y: date.lower_y,
-                innerHTML: date.lower_text,
+                x: date.lowerX,
+                y: date.lowerY,
+                innerHTML: date.lowerText,
                 class: 'lower-text',
                 append_to: this.layers.date,
             });
-            if (date.upper_text) {
+            if (date.upperText) {
                 const $upperText = createSVG('text', {
-                    x: date.upper_x,
-                    y: date.upper_y,
-                    innerHTML: date.upper_text,
+                    x: date.upperX,
+                    y: date.upperY,
+                    innerHTML: date.upperText,
                     class: 'upper-text',
                     append_to: this.layers.date,
                 });
@@ -602,11 +601,11 @@ export default class Gantt {
             }
         }
         let x = 60;
-        this.options.columnNames.forEach((column) => {
+        this.options.columns.forEach((column) => {
             createSVG('text', {
                 x,
                 y: 50,
-                innerHTML: column,
+                innerHTML: column.label,
                 class: 'lower-text',
                 append_to: this.columnLayers.date,
             });
@@ -618,11 +617,11 @@ export default class Gantt {
                 + this.options.padding
                 + task.indexResolved * (this.options.barHeight + this.options.padding);
             x = 60;
-            this.options.columnKeys.forEach((columnKey) => {
+            this.options.columns.forEach((column) => {
                 createSVG('text', {
                     x,
                     y: posY,
-                    innerHTML: stringUtils.getDefaultString(String(task[columnKey])),
+                    innerHTML: stringUtils.getDefaultString(String(task[column.fieldName])),
                     class: 'lower-text',
                     append_to: this.columnLayers.date,
                 });
@@ -706,12 +705,12 @@ export default class Gantt {
             Year_upper: (this.options.columnWidth * 30) / 2,
         };
         return {
-            upper_text: dateText[`${this.options.viewMode}_upper`],
-            lower_text: dateText[`${this.options.viewMode}_lower`],
-            upper_x: basePos.x + xPos[`${this.options.viewMode}_upper`],
-            upper_y: basePos.upper_y,
-            lower_x: basePos.x + xPos[`${this.options.viewMode}_lower`],
-            lower_y: basePos.lower_y,
+            upperText: dateText[`${this.options.viewMode}_upper`],
+            lowerText: dateText[`${this.options.viewMode}_lower`],
+            upperX: basePos.x + xPos[`${this.options.viewMode}_upper`],
+            upperY: basePos.upper_y,
+            lowerX: basePos.x + xPos[`${this.options.viewMode}_lower`],
+            lowerY: basePos.lower_y,
         };
     }
     /**
@@ -897,18 +896,18 @@ export default class Gantt {
             $bar = bar.$bar;
             $barProgress.finaldx = 0;
             $barProgress.owidth = $barProgress.getWidth();
-            $barProgress.min_dx = -$barProgress.getWidth();
-            $barProgress.max_dx = $bar.getWidth() - $barProgress.getWidth();
+            $barProgress.minDx = -$barProgress.getWidth();
+            $barProgress.maxDx = $bar.getWidth() - $barProgress.getWidth();
         });
         $.on(this.$svg, 'mousemove', (e) => {
             if (!isResizing)
                 return;
             let dx = e.offsetX - xOnStart;
-            if (dx > $barProgress.max_dx) {
-                dx = $barProgress.max_dx;
+            if (dx > $barProgress.maxDx) {
+                dx = $barProgress.maxDx;
             }
-            if (dx < $barProgress.min_dx) {
-                dx = $barProgress.min_dx;
+            if (dx < $barProgress.minDx) {
+                dx = $barProgress.minDx;
             }
             const $handle = bar.$handleProgress;
             $.attr($barProgress, 'width', $barProgress.owidth + dx);

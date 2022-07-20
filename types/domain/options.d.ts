@@ -1,3 +1,4 @@
+import { Column } from './column';
 import { Language } from '../utils/date.utils';
 import { ResolvedTask } from './resolvedTask';
 import { ViewMode } from '..';
@@ -14,8 +15,7 @@ export interface Options {
     dateFormat?: string;
     customPopupHtml?: string | null;
     language?: Language;
-    columnNames: string[];
-    columnKeys: string[];
+    columns: Column[];
     columnWidthForColumns?: number;
     onClick?: (task: ResolvedTask) => void;
     onDateChange?: (task: ResolvedTask, startDate: Date, endDate: Date) => void;

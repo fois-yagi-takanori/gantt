@@ -1,6 +1,7 @@
 import '../src/gantt.scss';
 import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
+import { Column } from './domain/column';
 import { DateInfo } from './domain/dateInfo';
 import { Options } from './domain/options';
 import { ResolvedTask } from './domain/resolvedTask';
@@ -210,8 +211,7 @@ export default class Gantt {
       dateFormat: 'YYYY-MM-DD',
       customPopupHtml: null,
       language: 'ja',
-      columnNames: new Array<string>(),
-      columnKeys: new Array<string>(),
+      columns: new Array<Column>(),
       columnWidthForColumns: 120,
     };
     this.options = { ...defaultOptions, ...options };
@@ -243,8 +243,7 @@ export default class Gantt {
         startResolved: dateUtils.parse(task.planStartDate),
         endResolved: dateUtils.parse(task.planEndDate),
         indexResolved: i,
-        dependencies,
-        columnNames: this.options.columnNames,
+        dependencies
       };
 
       // make task invalid if duration too large
@@ -503,7 +502,7 @@ export default class Gantt {
    */
   makeGridBackground(): void {
     const gridWidth = this.dates.length * this.options.columnWidth;
-    const columnGridWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
+    const columnGridWidth = this.options.columns.length * this.options.columnWidthForColumns;
     const gridHeight = this.options.headerHeight
       + this.options.padding
       + (this.options.barHeight + this.options.padding)
@@ -551,7 +550,7 @@ export default class Gantt {
 
     const rowWidth = this.dates.length * this.options.columnWidth;
     const rowHeight = this.options.barHeight + this.options.padding;
-    const columnRowWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
+    const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
 
     let rowY = this.options.headerHeight + this.options.padding / 2;
 
@@ -615,7 +614,7 @@ export default class Gantt {
    *
    */
   makeColumnsGridHeader(): void {
-    const headerWidth = this.options.columnNames.length * this.options.columnWidthForColumns;
+    const headerWidth = this.options.columns.length * this.options.columnWidthForColumns;
     const headerHeight = this.options.headerHeight + 10;
     createSVG('rect', {
       x: 0,
@@ -733,11 +732,11 @@ export default class Gantt {
     }
 
     let x = 60;
-    this.options.columnNames.forEach((column) => {
+    this.options.columns.forEach((column) => {
       createSVG('text', {
         x,
         y: 50,
-        innerHTML: column,
+        innerHTML: column.label,
         class: 'lower-text',
         append_to: this.columnLayers.date,
       });
@@ -750,11 +749,11 @@ export default class Gantt {
         + this.options.padding
         + task.indexResolved * (this.options.barHeight + this.options.padding);
       x = 60;
-      this.options.columnKeys.forEach((columnKey) => {
+      this.options.columns.forEach((column) => {
         createSVG('text', {
           x,
           y: posY,
-          innerHTML: stringUtils.getDefaultString(String(task[columnKey])),
+          innerHTML: stringUtils.getDefaultString(String(task[column.fieldName])),
           class: 'lower-text',
           append_to: this.columnLayers.date,
         });
