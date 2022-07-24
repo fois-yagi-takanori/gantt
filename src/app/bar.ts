@@ -192,8 +192,8 @@ export default class Bar {
       append_to: this.barGroup,
     });
 
-    if (this.task.color) {
-      this.$bar.style.fill = this.task.color;
+    if (this.task.resultBarColor) {
+      this.$bar.style.fill = this.task.resultBarColor;
     }
 
     animateSVG(this.$bar, 'width', 0, this.width);
@@ -218,12 +218,7 @@ export default class Bar {
       append_to: this.barGroup,
     });
 
-    this.$plannedBar.style.fillOpacity = '0';
-    this.$plannedBar.style.strokeOpacity = '1';
-    this.$plannedBar.style.stroke = this.task.plannedColor || this.task.color;
-    this.$plannedBar.style.strokeDasharray = '2,2';
-    this.$plannedBar.style.strokeLinejoin = 'round';
-    this.$plannedBar.style.strokeWidth = '2px';
+    this.$plannedBar.style.fill = this.task.planColor;
 
     animateSVG(this.$plannedBar, 'width', 0, this.plannedWidth);
 
