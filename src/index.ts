@@ -552,13 +552,13 @@ export default class Gantt {
     const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
 
     const rowWidth = this.dates.length * this.options.columnWidth;
-    const rowHeight = this.options.barHeight + this.options.padding;
+    const rowHeight = this.options.barHeight +  this.options.padding;
     const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
 
     let rowY = this.options.headerHeight + this.options.padding / 2;
 
     this.tasks.forEach((task) => {
-      task.gridRow = createSVG('rect', {
+      task.planGridRow = createSVG('rect', {
         x: 0,
         y: rowY,
         width: rowWidth,
@@ -566,7 +566,8 @@ export default class Gantt {
         class: 'grid-row',
         append_to: rowsLayer,
       });
-      task.gridRow = createSVG('rect', {
+
+      createSVG('rect', {
         x: 0,
         y: rowY,
         width: columnRowWidth,
@@ -575,7 +576,7 @@ export default class Gantt {
         append_to: columnsRowsLayer,
       });
 
-      task.gridRow = createSVG('line', {
+      createSVG('line', {
         x1: 0,
         y1: rowY + rowHeight,
         x2: rowWidth,
@@ -584,7 +585,7 @@ export default class Gantt {
         append_to: linesLayer,
       });
 
-      task.gridRow = createSVG('line', {
+      createSVG('line', {
         x1: 0,
         y1: rowY + rowHeight,
         x2: columnRowWidth,
@@ -594,6 +595,42 @@ export default class Gantt {
       });
 
       rowY += this.options.barHeight + this.options.padding;
+
+      // 実績
+      task.resultGridRow = createSVG('rect', {
+        x: 0,
+        y: rowY,
+        width: rowWidth,
+        height: rowHeight,
+        class: 'grid-row',
+        append_to: rowsLayer,
+      });
+      createSVG('rect', {
+        x: 0,
+        y: rowY,
+        width: columnRowWidth,
+        height: rowHeight,
+        class: 'grid-row',
+        append_to: columnsRowsLayer,
+      });
+
+      createSVG('line', {
+        x1: 0,
+        y1: rowY + rowHeight,
+        x2: rowWidth,
+        y2: rowY + rowHeight,
+        class: 'row-line',
+        append_to: linesLayer,
+      });
+
+      createSVG('line', {
+        x1: 0,
+        y1: rowY + rowHeight,
+        x2: columnRowWidth,
+        y2: rowY + rowHeight,
+        class: 'row-line',
+        append_to: columnsLinesLayer,
+      });
     });
   }
 

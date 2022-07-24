@@ -505,7 +505,7 @@ export default class Bar {
      *
      */
     setupHoverEvent() {
-        $.on(this.task.gridRow, 'mousemove', () => {
+        $.on(this.task.planGridRow, 'mousemove', () => {
             // Mouse is not hovering over any elements.
             this.setHover(false, false);
         });

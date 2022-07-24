@@ -1064,7 +1064,7 @@ var Gantt = (function (Split) {
          *
          */
         setupHoverEvent() {
-            $.on(this.task.gridRow, 'mousemove', () => {
+            $.on(this.task.planGridRow, 'mousemove', () => {
                 // Mouse is not hovering over any elements.
                 this.setHover(false, false);
             });
@@ -1556,7 +1556,7 @@ var Gantt = (function (Split) {
             const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
             let rowY = this.options.headerHeight + this.options.padding / 2;
             this.tasks.forEach((task) => {
-                task.gridRow = createSVG('rect', {
+                task.planGridRow = createSVG('rect', {
                     x: 0,
                     y: rowY,
                     width: rowWidth,
@@ -1564,7 +1564,7 @@ var Gantt = (function (Split) {
                     class: 'grid-row',
                     append_to: rowsLayer,
                 });
-                task.gridRow = createSVG('rect', {
+                createSVG('rect', {
                     x: 0,
                     y: rowY,
                     width: columnRowWidth,
@@ -1572,7 +1572,7 @@ var Gantt = (function (Split) {
                     class: 'grid-row',
                     append_to: columnsRowsLayer,
                 });
-                task.gridRow = createSVG('line', {
+                createSVG('line', {
                     x1: 0,
                     y1: rowY + rowHeight,
                     x2: rowWidth,
@@ -1580,7 +1580,7 @@ var Gantt = (function (Split) {
                     class: 'row-line',
                     append_to: linesLayer,
                 });
-                task.gridRow = createSVG('line', {
+                createSVG('line', {
                     x1: 0,
                     y1: rowY + rowHeight,
                     x2: columnRowWidth,
@@ -1589,6 +1589,39 @@ var Gantt = (function (Split) {
                     append_to: columnsLinesLayer,
                 });
                 rowY += this.options.barHeight + this.options.padding;
+                // 実績
+                task.resultGridRow = createSVG('rect', {
+                    x: 0,
+                    y: rowY,
+                    width: rowWidth,
+                    height: rowHeight,
+                    class: 'grid-row',
+                    append_to: rowsLayer,
+                });
+                createSVG('rect', {
+                    x: 0,
+                    y: rowY,
+                    width: columnRowWidth,
+                    height: rowHeight,
+                    class: 'grid-row',
+                    append_to: columnsRowsLayer,
+                });
+                createSVG('line', {
+                    x1: 0,
+                    y1: rowY + rowHeight,
+                    x2: rowWidth,
+                    y2: rowY + rowHeight,
+                    class: 'row-line',
+                    append_to: linesLayer,
+                });
+                createSVG('line', {
+                    x1: 0,
+                    y1: rowY + rowHeight,
+                    x2: columnRowWidth,
+                    y2: rowY + rowHeight,
+                    class: 'row-line',
+                    append_to: columnsLinesLayer,
+                });
             });
         }
         /**
