@@ -968,8 +968,7 @@ var Gantt = (function (Split) {
         computeY() {
             return (this.gantt.options.headerHeight
                 + this.gantt.options.padding
-                + this.task.indexResolved * (this.height + this.gantt.options.padding)
-                + (this.currentIndex == 0 ? 0 : 20));
+                + this.task.indexResolved * (this.height + this.gantt.options.padding + 20));
         }
         /**
          *
@@ -1726,24 +1725,22 @@ var Gantt = (function (Split) {
                 });
                 x += 120;
             });
-            let i = 0;
             this.tasks.forEach((task) => {
                 const posY = 15
                     + this.options.headerHeight
                     + this.options.padding
-                    + task.indexResolved * (this.options.barHeight + this.options.padding);
+                    + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
                 x = 60;
                 this.options.columns.forEach((column) => {
                     createSVG('text', {
                         x,
-                        y: i == 0 ? posY : posY + 20,
+                        y: posY,
                         innerHTML: getDefaultString(String(task[column.fieldName])),
                         class: 'lower-text',
                         append_to: this.columnLayers.date,
                     });
                     x += 120;
                 });
-                i++;
             });
         }
         /**

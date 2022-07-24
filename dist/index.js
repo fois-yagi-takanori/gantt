@@ -611,24 +611,22 @@ export default class Gantt {
             });
             x += 120;
         });
-        let i = 0;
         this.tasks.forEach((task) => {
             const posY = 15
                 + this.options.headerHeight
                 + this.options.padding
-                + task.indexResolved * (this.options.barHeight + this.options.padding);
+                + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
             x = 60;
             this.options.columns.forEach((column) => {
                 createSVG('text', {
                     x,
-                    y: i == 0 ? posY : posY + 20,
+                    y: posY,
                     innerHTML: stringUtils.getDefaultString(String(task[column.fieldName])),
                     class: 'lower-text',
                     append_to: this.columnLayers.date,
                 });
                 x += 120;
             });
-            i++;
         });
     }
     /**

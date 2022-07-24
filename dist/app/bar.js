@@ -409,8 +409,7 @@ export default class Bar {
     computeY() {
         return (this.gantt.options.headerHeight
             + this.gantt.options.padding
-            + this.task.indexResolved * (this.height + this.gantt.options.padding)
-            + (this.currentIndex == 0 ? 0 : 20));
+            + this.task.indexResolved * (this.height + this.gantt.options.padding + 20));
     }
     /**
      *
