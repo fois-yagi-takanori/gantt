@@ -568,7 +568,7 @@ var Gantt = (function (Split) {
          * @param gantt
          * @param task
          */
-        constructor(gantt, task) {
+        constructor(gantt, task, index) {
             this.prepareHelpers = () => {
                 /* eslint-disable func-names */
                 /**
@@ -610,6 +610,7 @@ var Gantt = (function (Split) {
                 }
                 return element;
             };
+            this.currentIndex = index;
             this.setDefaults(gantt, task);
             this.prepare();
             this.draw();
@@ -673,8 +674,8 @@ var Gantt = (function (Split) {
          */
         draw() {
             this.drawBar();
-            this.drawProgressBar();
             this.drawPlannedBar();
+            this.drawProgressBar();
             this.drawLabel();
             this.drawResizeHandles();
         }
@@ -684,7 +685,7 @@ var Gantt = (function (Split) {
         drawBar() {
             this.$bar = createSVG('rect', {
                 x: this.x,
-                y: this.y,
+                y: this.y + this.height,
                 width: this.width,
                 height: this.height,
                 rx: this.cornerRadius,
@@ -733,7 +734,7 @@ var Gantt = (function (Split) {
                 return;
             this.$barProgress = createSVG('rect', {
                 x: this.x,
-                y: this.y,
+                y: this.y + this.height,
                 width: this.progressWidth,
                 height: this.height,
                 rx: this.cornerRadius,
@@ -746,12 +747,12 @@ var Gantt = (function (Split) {
             animateSVG(this.$barProgress, 'width', 0, this.progressWidth);
         }
         /**
-         *
+         * タスク名表示
          */
         drawLabel() {
             const text = createSVG('text', {
                 x: this.x + this.width / 2,
-                y: this.y + this.height / 2,
+                y: this.y + this.height / 2 + 20,
                 innerHTML: this.task.name,
                 class: 'bar-label',
                 append_to: this.barGroup,
@@ -967,7 +968,8 @@ var Gantt = (function (Split) {
         computeY() {
             return (this.gantt.options.headerHeight
                 + this.gantt.options.padding
-                + this.task.indexResolved * (this.height + this.gantt.options.padding));
+                + this.task.indexResolved * (this.height + this.gantt.options.padding)
+                + (this.currentIndex == 0 ? 0 : 20));
         }
         /**
          *
@@ -1064,7 +1066,7 @@ var Gantt = (function (Split) {
          *
          */
         setupHoverEvent() {
-            $.on(this.task.planGridRow, 'mousemove', () => {
+            $.on(this.task.gridRow, 'mousemove', () => {
                 // Mouse is not hovering over any elements.
                 this.setHover(false, false);
             });
@@ -1552,13 +1554,13 @@ var Gantt = (function (Split) {
             const columnsRowsLayer = createSVG('g', { append_to: this.columnLayers.grid });
             const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
             const rowWidth = this.dates.length * this.options.columnWidth;
-            const rowHeight = this.options.barHeight + this.options.padding;
+            const rowHeight = this.options.barHeight + this.options.padding + 20;
             const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
             let rowY = this.options.headerHeight + this.options.padding / 2;
             this.tasks.forEach((task) => {
-                task.planGridRow = createSVG('rect', {
+                task.gridRow = createSVG('rect', {
                     x: 0,
-                    y: rowY,
+                    y: rowY + 20,
                     width: rowWidth,
                     height: rowHeight,
                     class: 'grid-row',
@@ -1588,40 +1590,7 @@ var Gantt = (function (Split) {
                     class: 'row-line',
                     append_to: columnsLinesLayer,
                 });
-                rowY += this.options.barHeight + this.options.padding;
-                // 実績
-                task.resultGridRow = createSVG('rect', {
-                    x: 0,
-                    y: rowY,
-                    width: rowWidth,
-                    height: rowHeight,
-                    class: 'grid-row',
-                    append_to: rowsLayer,
-                });
-                createSVG('rect', {
-                    x: 0,
-                    y: rowY,
-                    width: columnRowWidth,
-                    height: rowHeight,
-                    class: 'grid-row',
-                    append_to: columnsRowsLayer,
-                });
-                createSVG('line', {
-                    x1: 0,
-                    y1: rowY + rowHeight,
-                    x2: rowWidth,
-                    y2: rowY + rowHeight,
-                    class: 'row-line',
-                    append_to: linesLayer,
-                });
-                createSVG('line', {
-                    x1: 0,
-                    y1: rowY + rowHeight,
-                    x2: columnRowWidth,
-                    y2: rowY + rowHeight,
-                    class: 'row-line',
-                    append_to: columnsLinesLayer,
-                });
+                rowY += this.options.barHeight + this.options.padding + 20;
             });
         }
         /**
@@ -1705,7 +1674,7 @@ var Gantt = (function (Split) {
                     * this.options.columnWidth;
                 const y = 0;
                 const width = this.options.columnWidth;
-                const height = (this.options.barHeight + this.options.padding)
+                const height = (this.options.barHeight + this.options.padding + 20)
                     * this.tasks.length
                     + this.options.headerHeight
                     + this.options.padding / 2;
@@ -1757,6 +1726,7 @@ var Gantt = (function (Split) {
                 });
                 x += 120;
             });
+            let i = 0;
             this.tasks.forEach((task) => {
                 const posY = 15
                     + this.options.headerHeight
@@ -1766,13 +1736,14 @@ var Gantt = (function (Split) {
                 this.options.columns.forEach((column) => {
                     createSVG('text', {
                         x,
-                        y: posY,
+                        y: i == 0 ? posY : posY + 20,
                         innerHTML: getDefaultString(String(task[column.fieldName])),
                         class: 'lower-text',
                         append_to: this.columnLayers.date,
                     });
                     x += 120;
                 });
+                i++;
             });
         }
         /**
@@ -1863,9 +1834,11 @@ var Gantt = (function (Split) {
          *
          */
         makeBars() {
+            let i = 0;
             this.bars = this.tasks.map((task) => {
-                const bar = new Bar(this, task);
+                const bar = new Bar(this, task, i);
                 this.layers.bar.appendChild(bar.group);
+                i++;
                 return bar;
             });
         }

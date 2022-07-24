@@ -58,12 +58,15 @@ export default class Bar {
 
   interactionTarget: 'planned' | 'main' | null;
 
+  currentIndex: number;
+
   /**
    *
    * @param gantt
    * @param task
    */
-  constructor(gantt: Gantt, task: ResolvedTask) {
+  constructor(gantt: Gantt, task: ResolvedTask, index: number) {
+    this.currentIndex = index;
     this.setDefaults(gantt, task);
     this.prepare();
     this.draw();
@@ -168,8 +171,8 @@ export default class Bar {
    */
   draw(): void {
     this.drawBar();
-    this.drawProgressBar();
     this.drawPlannedBar();
+    this.drawProgressBar();
     this.drawLabel();
     this.drawResizeHandles();
   }
@@ -180,7 +183,7 @@ export default class Bar {
   drawBar(): void {
     this.$bar = createSVG('rect', {
       x: this.x,
-      y: this.y,
+      y: this.y + this.height,
       width: this.width,
       height: this.height,
       rx: this.cornerRadius,
@@ -236,7 +239,7 @@ export default class Bar {
     if (this.invalid) return;
     this.$barProgress = createSVG('rect', {
       x: this.x,
-      y: this.y,
+      y: this.y + this.height,
       width: this.progressWidth,
       height: this.height,
       rx: this.cornerRadius,
@@ -251,12 +254,12 @@ export default class Bar {
   }
 
   /**
-   *
+   * タスク名表示
    */
   drawLabel(): void {
     const text = createSVG('text', {
       x: this.x + this.width / 2,
-      y: this.y + this.height / 2,
+      y: this.y + this.height /2 + 20,
       innerHTML: this.task.name,
       class: 'bar-label',
       append_to: this.barGroup,
@@ -524,6 +527,7 @@ export default class Bar {
       this.gantt.options.headerHeight
       + this.gantt.options.padding
       + this.task.indexResolved * (this.height + this.gantt.options.padding)
+      + (this.currentIndex == 0 ? 0 : 20)
     );
   }
 
@@ -640,7 +644,7 @@ export default class Bar {
    *
    */
   setupHoverEvent(): void {
-    $.on(this.task.planGridRow, 'mousemove', () => {
+    $.on(this.task.gridRow, 'mousemove', () => {
       // Mouse is not hovering over any elements.
       this.setHover(false, false);
     });

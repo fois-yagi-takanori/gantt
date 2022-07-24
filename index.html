@@ -26,19 +26,34 @@
   <script src="dist/frappe-gantt.js"></script>
   <script>
     const tasks = [{
-      planStartDate: '2022-07-24',
-      planEndDate: '2022-07-25',
-      resultStartDate: '2022-07-28',
-      resultEndDate: '2022-07-29',
-      name: 'Redesign website',
-      id: "Task 0",
-      progress: 40,
-      itemName: "解体工事",
-      shopName: "A施工店",
-      schedule: "予定",
-      startDate: "2022/06/01",
-      endDate: '2022/06/07'
-    }];
+        planStartDate: '2022-07-24',
+        planEndDate: '2022-07-25',
+        resultStartDate: '2022-07-28',
+        resultEndDate: '2022-07-29',
+        name: 'Redesign website',
+        id: "Task 0",
+        progress: 40,
+        itemName: "解体工事",
+        shopName: "A施工店",
+        schedule: "予定",
+        startDate: "2022/06/01",
+        endDate: '2022/06/07'
+      },
+      {
+        planStartDate: '2022-07-24',
+        planEndDate: '2022-07-27',
+        resultStartDate: '2022-07-28',
+        resultEndDate: '2022-07-29',
+        name: 'Redesign website',
+        id: "Task 1",
+        progress: 40,
+        itemName: "解体工事",
+        shopName: "A施工店",
+        schedule: "予定",
+        startDate: "2022/06/01",
+        endDate: '2022/06/07'
+      }
+    ];
     var gantt_chart = new Gantt(".gantt-target", tasks, {
       on_click: function (task) {
         console.log(task);

@@ -552,15 +552,15 @@ export default class Gantt {
     const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
 
     const rowWidth = this.dates.length * this.options.columnWidth;
-    const rowHeight = this.options.barHeight +  this.options.padding;
+    const rowHeight = this.options.barHeight +  this.options.padding + 20;
     const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
 
     let rowY = this.options.headerHeight + this.options.padding / 2;
 
     this.tasks.forEach((task) => {
-      task.planGridRow = createSVG('rect', {
+      task.gridRow = createSVG('rect', {
         x: 0,
-        y: rowY,
+        y: rowY + 20,
         width: rowWidth,
         height: rowHeight,
         class: 'grid-row',
@@ -594,43 +594,7 @@ export default class Gantt {
         append_to: columnsLinesLayer,
       });
 
-      rowY += this.options.barHeight + this.options.padding;
-
-      // 実績
-      task.resultGridRow = createSVG('rect', {
-        x: 0,
-        y: rowY,
-        width: rowWidth,
-        height: rowHeight,
-        class: 'grid-row',
-        append_to: rowsLayer,
-      });
-      createSVG('rect', {
-        x: 0,
-        y: rowY,
-        width: columnRowWidth,
-        height: rowHeight,
-        class: 'grid-row',
-        append_to: columnsRowsLayer,
-      });
-
-      createSVG('line', {
-        x1: 0,
-        y1: rowY + rowHeight,
-        x2: rowWidth,
-        y2: rowY + rowHeight,
-        class: 'row-line',
-        append_to: linesLayer,
-      });
-
-      createSVG('line', {
-        x1: 0,
-        y1: rowY + rowHeight,
-        x2: columnRowWidth,
-        y2: rowY + rowHeight,
-        class: 'row-line',
-        append_to: columnsLinesLayer,
-      });
+      rowY += this.options.barHeight + this.options.padding + 20;
     });
   }
 
@@ -723,7 +687,7 @@ export default class Gantt {
       const y = 0;
 
       const width = this.options.columnWidth;
-      const height = (this.options.barHeight + this.options.padding)
+      const height = (this.options.barHeight + this.options.padding + 20)
         * this.tasks.length
         + this.options.headerHeight
         + this.options.padding / 2;
@@ -783,6 +747,7 @@ export default class Gantt {
       x += 120;
     });
 
+    let i = 0;
     this.tasks.forEach((task: ResolvedTask) => {
       const posY = 15
         + this.options.headerHeight
@@ -792,13 +757,14 @@ export default class Gantt {
       this.options.columns.forEach((column) => {
         createSVG('text', {
           x,
-          y: posY,
+          y: i== 0 ? posY : posY + 20,
           innerHTML: stringUtils.getDefaultString(String(task[column.fieldName])),
           class: 'lower-text',
           append_to: this.columnLayers.date,
         });
         x += 120;
       });
+      i++;
     });
   }
 
@@ -912,9 +878,11 @@ export default class Gantt {
    *
    */
   makeBars(): void {
+    let i = 0;
     this.bars = this.tasks.map((task) => {
-      const bar = new Bar(this, task);
+      const bar = new Bar(this, task, i);
       this.layers.bar.appendChild(bar.group);
+      i++;
 
       return bar;
     });
