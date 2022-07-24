@@ -168,30 +168,30 @@ export default class Gantt {
             else {
                 dependencies = [];
             }
-            const resolvedTask = Object.assign(Object.assign({}, task), { startResolved: dateUtils.parse(task.planStartDate), endResolved: dateUtils.parse(task.planEndDate), indexResolved: i, dependencies });
+            const resolvedTask = Object.assign(Object.assign({}, task), { plannedStartResolved: dateUtils.parse(task.planStartDate), plannedEndResolved: dateUtils.parse(task.planEndDate), resultStartResolved: dateUtils.parse(task.resultStartDate), resultEndResolved: dateUtils.parse(task.resultEndDate), indexResolved: i, dependencies });
             // make task invalid if duration too large
-            if (dateUtils.diff(resolvedTask.endResolved, resolvedTask.startResolved, 'year') > 10) {
+            if (dateUtils.diff(resolvedTask.resultEndResolved, resolvedTask.resultStartResolved, 'year') > 10) {
                 resolvedTask.end = null;
             }
             // cache index
             // invalid dates
             if (!resolvedTask.planStartDate && !resolvedTask.planEndDate) {
                 const today = dateUtils.today();
-                resolvedTask.startResolved = today;
-                resolvedTask.endResolved = dateUtils.add(today, 2, 'day');
+                resolvedTask.resultStartResolved = today;
+                resolvedTask.resultEndResolved = dateUtils.add(today, 2, 'day');
             }
             if (!resolvedTask.planStartDate && resolvedTask.planEndDate) {
-                resolvedTask.startResolved = dateUtils.add(resolvedTask.endResolved, -2, 'day');
+                resolvedTask.resultStartResolved = dateUtils.add(resolvedTask.resultEndResolved, -2, 'day');
             }
             if (resolvedTask.planStartDate && !resolvedTask.planEndDate) {
-                resolvedTask.endResolved = dateUtils.add(resolvedTask.startResolved, 2, 'day');
+                resolvedTask.resultEndResolved = dateUtils.add(resolvedTask.resultStartResolved, 2, 'day');
             }
             // if hours is not set, assume the last day is full day
             // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
-            const taskEndValues = dateUtils.getDateValues(resolvedTask.endResolved);
+            const taskEndValues = dateUtils.getDateValues(resolvedTask.resultEndResolved);
             if (taskEndValues.slice(3)
                 .every((d) => d === 0)) {
-                resolvedTask.endResolved = dateUtils.add(resolvedTask.endResolved, 24, 'hour');
+                resolvedTask.resultEndResolved = dateUtils.add(resolvedTask.resultEndResolved, 24, 'hour');
             }
             // invalid flag
             if (!resolvedTask.planStartDate || !resolvedTask.planEndDate) {
@@ -287,15 +287,15 @@ export default class Gantt {
         this.ganttEnd = null;
         this.tasks.forEach((task) => {
             // set global start and end date
-            if (!this.ganttStart || task.startResolved < this.ganttStart) {
-                this.ganttStart = task.startResolved;
+            if (!this.ganttStart || task.resultStartResolved < this.ganttStart) {
+                this.ganttStart = task.resultStartResolved;
             }
             if (task.plannedStartResolved
                 && (!this.ganttStart || task.plannedStartResolved > this.ganttStart)) {
                 this.ganttStart = task.plannedStartResolved;
             }
-            if (!this.ganttEnd || task.endResolved > this.ganttEnd) {
-                this.ganttEnd = task.endResolved;
+            if (!this.ganttEnd || task.resultEndResolved > this.ganttEnd) {
+                this.ganttEnd = task.resultEndResolved;
             }
             if (task.plannedEndResolved
                 && (!this.ganttEnd || task.plannedEndResolved > this.ganttEnd)) {
@@ -1023,7 +1023,7 @@ export default class Gantt {
        */
     getOldestStartingDate() {
         return this.tasks
-            .map((task) => task.startResolved)
+            .map((task) => task.resultStartResolved)
             .reduce((prev_date, cur_date) => (cur_date <= prev_date ? cur_date : prev_date));
     }
     /**

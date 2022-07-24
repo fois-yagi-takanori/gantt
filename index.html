@@ -1,59 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
+
 <head>
-	<meta charset="UTF-8">
-	<title>Simple Gantt</title>
-	<style>
-		body {
-			font-family: sans-serif;
-			background: #ccc;
-		}
-		.container {
-			width: 80%;
-			margin: 0 auto;
-		}
-		/* custom class */
-		.gantt .bar-milestone .bar {
-			fill: tomato;
-		}
-	</style>
-	<link rel="stylesheet" href="dist/frappe-gantt.css" />
-	<script src="dist/frappe-gantt.js"></script>
+  <meta charset="UTF-8">
+  <title>Simple Gantt</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #ccc;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 10px 2.5fr;
+    }
+  </style>
+  <link rel="stylesheet" href="dist/frappe-gantt.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
+
 <body>
-	<div class="container">
-		<h2>Interactive Gantt Chart entirely made in SVG!</h2>
-		<div class="gantt-target"></div>
-	</div>
-	<script>
-		var tasks = [
-			{
-				start: '2022-06-01',
-				end: '2022-06-08',
-				name: 'Redesign website',
-				id: "Task 0",
-				progress: 20,
-        1: "ああああ"
-			}
-      ];
-		var gantt_chart = new Gantt(".gantt-target", tasks, {
-			on_click: function (task) {
-				console.log(task);
-			},
-			on_date_change: function(task, start, end) {
-				console.log(task, start, end);
-			},
-			on_progress_change: function(task, progress) {
-				console.log(task, progress);
-			},
-			on_view_change: function(mode) {
-				console.log(mode);
-			},
-			view_mode: 'Month',
-			language: 'ja',
-      columnNames: ['1', '2', '3'],
-		});
-		console.log(gantt_chart);
-	</script>
+  <div class="gantt-target"></div>
+  <script src="dist/split-grid.min.js"></script>
+  <script src="dist/frappe-gantt.js"></script>
+  <script>
+    const tasks = [{
+      planStartDate: '2022-07-24',
+      planEndDate: '2022-07-25',
+      resultStartDate: '2022-07-28',
+      resultEndDate: '2022-07-29',
+      name: 'Redesign website',
+      id: "Task 0",
+      progress: 40,
+      itemName: "解体工事",
+      shopName: "A施工店",
+      schedule: "予定",
+      startDate: "2022/06/01",
+      endDate: '2022/06/07'
+    }];
+    var gantt_chart = new Gantt(".gantt-target", tasks, {
+      on_click: function (task) {
+        console.log(task);
+      },
+      on_date_change: function (task, start, end) {
+        console.log(task, start, end);
+      },
+      on_progress_change: function (task, progress) {
+        console.log(task, progress);
+      },
+      on_view_change: function (mode) {
+        console.log(mode);
+      },
+      view_mode: 'Days',
+      language: 'ja',
+      columns: [{
+          columnType: 'label',
+          label: '工事項目',
+          fieldName: 'itemName'
+        },
+        {
+          columnType: 'label',
+          label: '施工店',
+          fieldName: 'shopName'
+        },
+        {
+          columnType: 'label',
+          label: '予実',
+          fieldName: 'schedule'
+        },
+        {
+          columnType: 'label',
+          label: '開始日',
+          fieldName: 'startDate'
+        },
+        {
+          columnType: 'label',
+          label: '終了日',
+          fieldName: 'endDate',
+        },
+        {
+          columnType: 'label',
+          label: '備考',
+          fieldName: 'remark',
+        }
+      ],
+      columnKeys: ['itemName', 'shopName', "schedule", 'startDate', 'endDate']
+    });
+    console.log(gantt_chart);
+  </script>
 </body>
+
 </html>

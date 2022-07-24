@@ -2,9 +2,9 @@ import { Task } from './task';
 export interface ResolvedTask extends Task {
     invalid?: boolean;
     indexResolved: number;
-    endResolved: Date;
+    resultEndResolved: Date;
     dependencies: string[];
-    startResolved: Date;
+    resultStartResolved: Date;
     plannedStartResolved?: Date;
     plannedEndResolved?: Date;
     gridRow?: SVGElement;

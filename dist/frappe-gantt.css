@@ -23,8 +23,8 @@
   stroke-width: 0.4;
 }
 .gantt .today-highlight {
-  fill: #fcf8e3;
-  opacity: 0.5;
+  fill: #ff0000;
+  opacity: 1;
 }
 .gantt .arrow {
   fill: none;

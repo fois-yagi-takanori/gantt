@@ -81,7 +81,7 @@ export default class Bar {
         this.x = this.computeX();
         this.y = this.computeY();
         this.cornerRadius = this.gantt.options.barCornerRadius;
-        this.duration = dateUtils.diff(this.task.endResolved, this.task.startResolved, 'hour')
+        this.duration = dateUtils.diff(this.task.resultEndResolved, this.task.resultStartResolved, 'hour')
             / this.gantt.options.step;
         this.width = this.gantt.options.columnWidth * this.duration;
         this.progressWidth = this.gantt.options.columnWidth
@@ -99,17 +99,15 @@ export default class Bar {
             class: 'handle-group',
             append_to: this.group,
         });
-        if (this.task.hasPlanned) {
-            this.plannedX = this.computeX(true);
-            this.plannedY = this.computeY();
-            this.plannedDuration = dateUtils.diff(this.task.plannedEndResolved, this.task.plannedStartResolved, 'hour')
-                / this.gantt.options.step;
-            this.plannedWidth = this.gantt.options.columnWidth * this.plannedDuration;
-            this.plannedHandleGroup = createSVG('g', {
-                class: 'handle-group',
-                append_to: this.group,
-            });
-        }
+        this.plannedX = this.computeX(true);
+        this.plannedY = this.computeY();
+        this.plannedDuration = dateUtils.diff(this.task.plannedEndResolved, this.task.plannedStartResolved, 'hour')
+            / this.gantt.options.step;
+        this.plannedWidth = this.gantt.options.columnWidth * this.plannedDuration;
+        this.plannedHandleGroup = createSVG('g', {
+            class: 'handle-group',
+            append_to: this.group,
+        });
     }
     /**
      *
@@ -117,8 +115,7 @@ export default class Bar {
     draw() {
         this.drawBar();
         this.drawProgressBar();
-        if (this.task.hasPlanned)
-            this.drawPlannedBar();
+        this.drawPlannedBar();
         this.drawLabel();
         this.drawResizeHandles();
     }
@@ -145,7 +142,7 @@ export default class Bar {
         }
     }
     /**
-     *
+     * 予定バー描画
      */
     drawPlannedBar() {
         this.$plannedBar = createSVG('rect', {
@@ -325,13 +322,13 @@ export default class Bar {
         {
             let changed = false;
             const { newStartDate, newEndDate, } = this.computeStartEndDate();
-            if (Number(this.task.startResolved) !== Number(newStartDate)) {
+            if (Number(this.task.resultStartResolved) !== Number(newStartDate)) {
                 changed = true;
-                this.task.startResolved = newStartDate;
+                this.task.resultStartResolved = newStartDate;
             }
-            if (Number(this.task.endResolved) !== Number(newEndDate)) {
+            if (Number(this.task.resultEndResolved) !== Number(newEndDate)) {
                 changed = true;
-                this.task.endResolved = newEndDate;
+                this.task.resultEndResolved = newEndDate;
             }
             if (changed) {
                 this.gantt.triggerEvent('DateChange', [
@@ -395,7 +392,7 @@ export default class Bar {
      */
     computeX(planned = false) {
         const { step, columnWidth, } = this.gantt.options;
-        const taskStart = planned ? this.task.plannedStartResolved : this.task.startResolved;
+        const taskStart = planned ? this.task.plannedStartResolved : this.task.resultStartResolved;
         const { ganttStart } = this.gantt;
         let diff = dateUtils.diff(taskStart, ganttStart, 'hour');
         let x = (diff / step) * columnWidth;

@@ -1,6 +1,8 @@
 
 export interface Column {
-  columnType: string,
+  columnType: ColumnType,
   label: string,
   fieldName: string
 }
+
+export type ColumnType = 'label' | 'select' | 'text' | 'calendar'

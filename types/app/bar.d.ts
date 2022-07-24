@@ -59,7 +59,7 @@ export default class Bar {
      */
     drawBar(): void;
     /**
-     *
+     * 予定バー描画
      */
     drawPlannedBar(): void;
     /**
