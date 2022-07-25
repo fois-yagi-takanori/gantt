@@ -195,15 +195,16 @@ var Gantt = (function (Split) {
      */
     class Arrow {
         /**
+         * コンストラクタ
          *
          * @param gantt
-         * @param from_task
-         * @param to_task
+         * @param fromTask
+         * @param toTask
          */
-        constructor(gantt, from_task, to_task) {
+        constructor(gantt, fromTask, toTask) {
             this.gantt = gantt;
-            this.fromTask = from_task;
-            this.toTask = to_task;
+            this.fromTask = fromTask;
+            this.toTask = toTask;
             this.calculatePath();
             this.draw();
         }
@@ -560,7 +561,7 @@ var Gantt = (function (Split) {
     };
 
     /**
-     *
+     * バークラス
      */
     class Bar {
         /**
@@ -670,7 +671,7 @@ var Gantt = (function (Split) {
             });
         }
         /**
-         *
+         * 描画処理
          */
         draw() {
             this.drawBar();
@@ -680,7 +681,7 @@ var Gantt = (function (Split) {
             this.drawResizeHandles();
         }
         /**
-         *
+         * バー描画
          */
         drawBar() {
             this.$bar = createSVG('rect', {
@@ -1123,8 +1124,10 @@ var Gantt = (function (Split) {
         YEAR: 'Year',
     };
     /**
+     * タスクID生成
      *
-     * @param task
+     * @param {ResolvedTask} task
+     * @returns {string} タスクID
      */
     function generateId(task) {
         return (`${task.name}_${Math.random()
@@ -1234,8 +1237,9 @@ var Gantt = (function (Split) {
             wrapperElement.appendChild(this.$container);
         }
         /**
+         * オプション設定
          *
-         * @param options
+         * @param {Options} options
          */
         setupOptions(options) {
             const defaultOptions = {
@@ -1257,8 +1261,10 @@ var Gantt = (function (Split) {
             this.options = Object.assign(Object.assign({}, defaultOptions), options);
         }
         /**
+         * タスク設定
          *
-         * @param tasks
+         * @param {Task[]} tasks
+         * @memberof Gantt
          */
         setupTasks(tasks) {
             // prepare tasks
@@ -1335,8 +1341,9 @@ var Gantt = (function (Split) {
             this.changeViewMode();
         }
         /**
+         * 表示モード変更処理
          *
-         * @param mode
+         * @param {ViewMode} mode
          */
         changeViewMode(mode = this.options.viewMode) {
             this.updateViewScale(mode);
@@ -1346,8 +1353,9 @@ var Gantt = (function (Split) {
             this.triggerEvent('ViewChange', [mode]);
         }
         /**
+         * 表示モードによって、スケールを変更する
          *
-         * @param view_mode
+         * @param {ViewMode} view_mode
          */
         updateViewScale(view_mode) {
             this.options.viewMode = view_mode;
@@ -1460,7 +1468,7 @@ var Gantt = (function (Split) {
             this.bindBarEvents();
         }
         /**
-         *
+         * 描画処理
          */
         render() {
             this.clear();
@@ -1493,7 +1501,7 @@ var Gantt = (function (Split) {
             });
         }
         /**
-         *
+         * グリッド作成
          */
         makeGrid() {
             this.makeGridBackground();
@@ -1504,7 +1512,7 @@ var Gantt = (function (Split) {
             this.makeGridHighlights();
         }
         /**
-         *
+         * 背景作成
          */
         makeGridBackground() {
             const gridWidth = this.dates.length * this.options.columnWidth;
@@ -1540,7 +1548,7 @@ var Gantt = (function (Split) {
             // this.$container.style.left = `${columnGridWidth + 51}px`;
         }
         /**
-         *
+         * 行生成
          */
         makeGridRows() {
             const rowsLayer = createSVG('g', { append_to: this.layers.grid });
@@ -1588,7 +1596,7 @@ var Gantt = (function (Split) {
             });
         }
         /**
-         *
+         * ヘッダー作成
          */
         makeGridHeader() {
             const headerWidth = this.dates.length * this.options.columnWidth;
@@ -1658,7 +1666,7 @@ var Gantt = (function (Split) {
             });
         }
         /**
-         *
+         * 当日の背景色
          */
         makeGridHighlights() {
             // highlight today's date
