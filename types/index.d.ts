@@ -51,13 +51,16 @@ export default class Gantt {
      */
     setupWrapper(elementReference: string | HTMLElement | SVGElement | unknown): void;
     /**
+     * オプション設定
      *
-     * @param options
+     * @param {Options} options
      */
     setupOptions(options: Options): void;
     /**
+     * タスク設定
      *
-     * @param tasks
+     * @param {Task[]} tasks
+     * @memberof Gantt
      */
     setupTasks(tasks: Task[]): void;
     /**
@@ -70,13 +73,15 @@ export default class Gantt {
      */
     refresh(tasks: Task[]): void;
     /**
+     * 表示モード変更処理
      *
-     * @param mode
+     * @param {ViewMode} mode
      */
     changeViewMode(mode?: ViewMode): void;
     /**
+     * 表示モードによって、スケールを変更する
      *
-     * @param view_mode
+     * @param {ViewMode} view_mode
      */
     updateViewScale(view_mode: ViewMode): void;
     /**
@@ -96,7 +101,7 @@ export default class Gantt {
      */
     bindEvents(): void;
     /**
-     *
+     * 描画処理
      */
     render(): void;
     /**
@@ -104,19 +109,19 @@ export default class Gantt {
      */
     setupLayers(): void;
     /**
-     *
+     * グリッド作成
      */
     makeGrid(): void;
     /**
-     *
+     * 背景作成
      */
     makeGridBackground(): void;
     /**
-     *
+     * 行生成
      */
     makeGridRows(): void;
     /**
-     *
+     * ヘッダー作成
      */
     makeGridHeader(): void;
     /**
@@ -128,13 +133,25 @@ export default class Gantt {
      */
     makeGridTicks(): void;
     /**
-     *
+     * 当日の背景色
      */
     makeGridHighlights(): void;
     /**
      *
      */
     makeDates(): void;
+    createColumValue(task: ResolvedTask, fieldName: string, x: number, posY: number, index: number): void;
+    /**
+     * 列の値を取得する。
+     * グループ対象のキーの場合は現在までのindexのなかで複数あればブランクを返却
+     *
+     * @param {ResolvedTask} task
+     * @param {string} fieldName
+     * @param {number} index
+     * @return {*}  {string}
+     * @memberof Gantt
+     */
+    getColumnValue(task: ResolvedTask, fieldName: string, index: number): string;
     /**
      *
      */

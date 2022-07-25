@@ -5,17 +5,18 @@ import Gantt from '../index';
  */
 export default class Arrow {
     private gantt;
+    private path;
     fromTask: Bar;
     toTask: Bar;
-    private path;
     element: SVGElement;
     /**
+     * コンストラクタ
      *
      * @param gantt
-     * @param from_task
-     * @param to_task
+     * @param fromTask
+     * @param toTask
      */
-    constructor(gantt: Gantt, from_task: Bar, to_task: Bar);
+    constructor(gantt: Gantt, fromTask: Bar, toTask: Bar);
     /**
      *
      */

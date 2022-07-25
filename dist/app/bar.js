@@ -1,7 +1,7 @@
 import { $, animateSVG, createSVG } from '../utils/svg.utils';
 import dateUtils from '../utils/date.utils';
 /**
- *
+ * バークラス
  */
 export default class Bar {
     /**
@@ -111,7 +111,7 @@ export default class Bar {
         });
     }
     /**
-     *
+     * 描画処理
      */
     draw() {
         this.drawBar();
@@ -121,7 +121,7 @@ export default class Bar {
         this.drawResizeHandles();
     }
     /**
-     *
+     * バー描画
      */
     drawBar() {
         this.$bar = createSVG('rect', {

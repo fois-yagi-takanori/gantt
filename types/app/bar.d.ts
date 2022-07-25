@@ -2,11 +2,10 @@ import { ResolvedTask } from '../domain/resolvedTask';
 import Arrow from './arrow';
 import Gantt from '..';
 /**
- *
+ * バークラス
  */
 export default class Bar {
     private gantt;
-    task: ResolvedTask;
     private invalid;
     private height;
     private x;
@@ -15,19 +14,20 @@ export default class Bar {
     private duration;
     private width;
     private progressWidth;
-    group: SVGElement;
     private barGroup;
     private handleGroup;
     private plannedHandleGroup;
+    private plannedX?;
+    private plannedY?;
+    private plannedDuration?;
+    private plannedWidth?;
+    group: SVGElement;
+    task: ResolvedTask;
     $bar: SVGElement;
     $barProgress: SVGElement;
     $handleProgress: SVGElement;
     arrows: Arrow[];
-    private plannedX?;
-    private plannedY?;
-    private plannedDuration?;
     $plannedBar?: SVGElement;
-    private plannedWidth?;
     interactionTarget: 'planned' | 'main' | null;
     currentIndex: number;
     /**
@@ -52,11 +52,11 @@ export default class Bar {
     prepareValues(): void;
     prepareHelpers: () => void;
     /**
-     *
+     * 描画処理
      */
     draw(): void;
     /**
-     *
+     * バー描画
      */
     drawBar(): void;
     /**

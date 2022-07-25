@@ -559,7 +559,7 @@ export default class Gantt {
     const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
 
     const rowWidth = this.dates.length * this.options.columnWidth;
-    const rowHeight = this.options.barHeight +  this.options.padding + 20;
+    const rowHeight = this.options.barHeight + this.options.padding + 20;
     const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
 
     let rowY = this.options.headerHeight + this.options.padding / 2;
@@ -754,23 +754,141 @@ export default class Gantt {
       x += 120;
     });
 
-    this.tasks.forEach((task: ResolvedTask) => {
+    this.tasks.forEach((task: ResolvedTask, index: number) => {
       const posY = 15
         + this.options.headerHeight
         + this.options.padding
         + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
       x = 60;
       this.options.columns.forEach((column) => {
-        createSVG('text', {
+        this.createColumValue(
+          task,
+          column.fieldName,
           x,
-          y: posY,
-          innerHTML: stringUtils.getDefaultString(String(task[column.fieldName])),
-          class: 'lower-text',
-          append_to: this.columnLayers.date,
-        });
+          posY,
+          index
+        );
         x += 120;
       });
     });
+  }
+
+  createColumValue(
+    task: ResolvedTask,
+    fieldName: string,
+    x: number,
+    posY: number,
+    index: number
+  ): void {
+    switch (fieldName) {
+      case 'startDate':
+        createSVG('text', {
+          x,
+          y: posY,
+          innerHTML: stringUtils.getDefaultString(String(task.planStartDate)),
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+
+        createSVG('text', {
+          x,
+          y: posY + 20,
+          innerHTML: stringUtils.getDefaultString(String(task.resultStartDate)),
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+        break;
+      case 'endDate':
+        createSVG('text', {
+          x,
+          y: posY,
+          innerHTML: stringUtils.getDefaultString(String(task.resultStartDate)),
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+
+        createSVG('text', {
+          x,
+          y: posY + 20,
+          innerHTML: stringUtils.getDefaultString(String(task.resultEndDate)),
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+        break;
+      case 'schedule':
+        createSVG('text', {
+          x,
+          y: posY,
+          innerHTML: '予定',
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+
+        createSVG('text', {
+          x,
+          y: posY + 20,
+          innerHTML: '実績',
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+
+        break;
+      default:
+        createSVG('text', {
+          x,
+          y: posY,
+          innerHTML: this.getColumnValue(task, fieldName, index),
+          class: 'lower-text',
+          append_to: this.columnLayers.date,
+        });
+        break;
+    }
+  }
+
+  /**
+   * 列の値を取得する。
+   * グループ対象のキーの場合は現在までのindexのなかで複数あればブランクを返却
+   *
+   * @param {ResolvedTask} task
+   * @param {string} fieldName
+   * @param {number} index
+   * @return {*}  {string}
+   * @memberof Gantt
+   */
+  getColumnValue(task: ResolvedTask, fieldName: string, index: number): string {
+
+    if (fieldName !== this.options.groupKey || stringUtils.isNullOrEmpty(this.options.groupKey)) {
+      return stringUtils.getDefaultString(String(task[fieldName]));
+    }
+
+    if (index === 0) {
+      return stringUtils.getDefaultString(String(task[fieldName]));
+    }
+
+    const groupValue = stringUtils.getDefaultString(String(task[fieldName]));
+
+    let searchCount = 0;
+    let loopIndex = 0;
+
+    for (const loopTask of this.tasks) {
+      const value = stringUtils.getDefaultString(String(loopTask[fieldName]));
+
+      if (value === groupValue) {
+        searchCount++;
+      }
+
+      if (index === loopIndex) {
+        break;
+      }
+
+      loopIndex++;
+    }
+
+    if (searchCount === 1) {
+      return groupValue;
+    }
+
+    return '';
   }
 
   /**

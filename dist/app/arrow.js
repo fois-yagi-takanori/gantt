@@ -4,15 +4,16 @@ import { createSVG } from '../utils/svg.utils';
  */
 export default class Arrow {
     /**
+     * コンストラクタ
      *
      * @param gantt
-     * @param from_task
-     * @param to_task
+     * @param fromTask
+     * @param toTask
      */
-    constructor(gantt, from_task, to_task) {
+    constructor(gantt, fromTask, toTask) {
         this.gantt = gantt;
-        this.fromTask = from_task;
-        this.toTask = to_task;
+        this.fromTask = fromTask;
+        this.toTask = toTask;
         this.calculatePath();
         this.draw();
     }

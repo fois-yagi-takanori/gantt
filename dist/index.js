@@ -14,8 +14,10 @@ const VIEW_MODE = {
     YEAR: 'Year',
 };
 /**
+ * タスクID生成
  *
- * @param task
+ * @param {ResolvedTask} task
+ * @returns {string} タスクID
  */
 function generateId(task) {
     return (`${task.name}_${Math.random()
@@ -125,8 +127,9 @@ export default class Gantt {
         wrapperElement.appendChild(this.$container);
     }
     /**
+     * オプション設定
      *
-     * @param options
+     * @param {Options} options
      */
     setupOptions(options) {
         const defaultOptions = {
@@ -148,8 +151,10 @@ export default class Gantt {
         this.options = Object.assign(Object.assign({}, defaultOptions), options);
     }
     /**
+     * タスク設定
      *
-     * @param tasks
+     * @param {Task[]} tasks
+     * @memberof Gantt
      */
     setupTasks(tasks) {
         // prepare tasks
@@ -226,8 +231,9 @@ export default class Gantt {
         this.changeViewMode();
     }
     /**
+     * 表示モード変更処理
      *
-     * @param mode
+     * @param {ViewMode} mode
      */
     changeViewMode(mode = this.options.viewMode) {
         this.updateViewScale(mode);
@@ -237,8 +243,9 @@ export default class Gantt {
         this.triggerEvent('ViewChange', [mode]);
     }
     /**
+     * 表示モードによって、スケールを変更する
      *
-     * @param view_mode
+     * @param {ViewMode} view_mode
      */
     updateViewScale(view_mode) {
         this.options.viewMode = view_mode;
@@ -351,7 +358,7 @@ export default class Gantt {
         this.bindBarEvents();
     }
     /**
-     *
+     * 描画処理
      */
     render() {
         this.clear();
@@ -384,7 +391,7 @@ export default class Gantt {
         });
     }
     /**
-     *
+     * グリッド作成
      */
     makeGrid() {
         this.makeGridBackground();
@@ -395,7 +402,7 @@ export default class Gantt {
         this.makeGridHighlights();
     }
     /**
-     *
+     * 背景作成
      */
     makeGridBackground() {
         const gridWidth = this.dates.length * this.options.columnWidth;
@@ -431,7 +438,7 @@ export default class Gantt {
         // this.$container.style.left = `${columnGridWidth + 51}px`;
     }
     /**
-     *
+     * 行生成
      */
     makeGridRows() {
         const rowsLayer = createSVG('g', { append_to: this.layers.grid });
@@ -479,7 +486,7 @@ export default class Gantt {
         });
     }
     /**
-     *
+     * ヘッダー作成
      */
     makeGridHeader() {
         const headerWidth = this.dates.length * this.options.columnWidth;
@@ -549,7 +556,7 @@ export default class Gantt {
         });
     }
     /**
-     *
+     * 当日の背景色
      */
     makeGridHighlights() {
         // highlight today's date
@@ -611,23 +618,113 @@ export default class Gantt {
             });
             x += 120;
         });
-        this.tasks.forEach((task) => {
+        this.tasks.forEach((task, index) => {
             const posY = 15
                 + this.options.headerHeight
                 + this.options.padding
                 + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
             x = 60;
             this.options.columns.forEach((column) => {
-                createSVG('text', {
-                    x,
-                    y: posY,
-                    innerHTML: stringUtils.getDefaultString(String(task[column.fieldName])),
-                    class: 'lower-text',
-                    append_to: this.columnLayers.date,
-                });
+                this.createColumValue(task, column.fieldName, x, posY, index);
                 x += 120;
             });
         });
+    }
+    createColumValue(task, fieldName, x, posY, index) {
+        switch (fieldName) {
+            case 'startDate':
+                createSVG('text', {
+                    x,
+                    y: posY,
+                    innerHTML: stringUtils.getDefaultString(String(task.planStartDate)),
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                createSVG('text', {
+                    x,
+                    y: posY + 20,
+                    innerHTML: stringUtils.getDefaultString(String(task.resultStartDate)),
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                break;
+            case 'endDate':
+                createSVG('text', {
+                    x,
+                    y: posY,
+                    innerHTML: stringUtils.getDefaultString(String(task.resultStartDate)),
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                createSVG('text', {
+                    x,
+                    y: posY + 20,
+                    innerHTML: stringUtils.getDefaultString(String(task.resultEndDate)),
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                break;
+            case 'schedule':
+                createSVG('text', {
+                    x,
+                    y: posY,
+                    innerHTML: '予定',
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                createSVG('text', {
+                    x,
+                    y: posY + 20,
+                    innerHTML: '実績',
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                break;
+            default:
+                createSVG('text', {
+                    x,
+                    y: posY,
+                    innerHTML: this.getColumnValue(task, fieldName, index),
+                    class: 'lower-text',
+                    append_to: this.columnLayers.date,
+                });
+                break;
+        }
+    }
+    /**
+     * 列の値を取得する。
+     * グループ対象のキーの場合は現在までのindexのなかで複数あればブランクを返却
+     *
+     * @param {ResolvedTask} task
+     * @param {string} fieldName
+     * @param {number} index
+     * @return {*}  {string}
+     * @memberof Gantt
+     */
+    getColumnValue(task, fieldName, index) {
+        if (fieldName !== this.options.groupKey || stringUtils.isNullOrEmpty(this.options.groupKey)) {
+            return stringUtils.getDefaultString(String(task[fieldName]));
+        }
+        if (index === 0) {
+            return stringUtils.getDefaultString(String(task[fieldName]));
+        }
+        const groupValue = stringUtils.getDefaultString(String(task[fieldName]));
+        let searchCount = 0;
+        let loopIndex = 0;
+        for (const loopTask of this.tasks) {
+            const value = stringUtils.getDefaultString(String(loopTask[fieldName]));
+            if (value === groupValue) {
+                searchCount++;
+            }
+            if (index === loopIndex) {
+                break;
+            }
+            loopIndex++;
+        }
+        if (searchCount === 1) {
+            return groupValue;
+        }
+        return '';
     }
     /**
      *
