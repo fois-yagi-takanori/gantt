@@ -5,13 +5,11 @@ import Gantt from '..';
 import dateUtils from '../utils/date.utils';
 
 /**
- *
+ * バークラス
  */
 export default class Bar {
 
   private gantt: Gantt;
-
-  task: ResolvedTask;
 
   private invalid: boolean;
 
@@ -29,13 +27,23 @@ export default class Bar {
 
   private progressWidth: number;
 
-  group: SVGElement;
-
   private barGroup: SVGElement;
 
   private handleGroup: SVGElement;
 
   private plannedHandleGroup: SVGElement;
+
+  private plannedX?: number;
+
+  private plannedY?: number;
+
+  private plannedDuration?: number;
+
+  private plannedWidth?: number;
+
+  group: SVGElement;
+
+  task: ResolvedTask;
 
   $bar: SVGElement;
 
@@ -46,15 +54,7 @@ export default class Bar {
 
   arrows: Arrow[];
 
-  private plannedX?: number;
-
-  private plannedY?: number;
-
-  private plannedDuration?: number;
-
   $plannedBar?: SVGElement;
-
-  private plannedWidth?: number;
 
   interactionTarget: 'planned' | 'main' | null;
 
@@ -167,7 +167,7 @@ export default class Bar {
   };
 
   /**
-   *
+   * 描画処理
    */
   draw(): void {
     this.drawBar();
@@ -178,7 +178,7 @@ export default class Bar {
   }
 
   /**
-   *
+   * バー描画
    */
   drawBar(): void {
     this.$bar = createSVG('rect', {
@@ -254,7 +254,7 @@ export default class Bar {
   drawLabel(): void {
     const text = createSVG('text', {
       x: this.x + this.width / 2,
-      y: this.y + this.height /2 + 20,
+      y: this.y + this.height / 2 + 20,
       innerHTML: this.task.name,
       class: 'bar-label',
       append_to: this.barGroup,

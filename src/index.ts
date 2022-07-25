@@ -30,8 +30,10 @@ const VIEW_MODE: {
 };
 
 /**
+ * タスクID生成
  *
- * @param task
+ * @param {ResolvedTask} task
+ * @returns {string} タスクID
  */
 function generateId(task: ResolvedTask): string {
   return (
@@ -195,8 +197,9 @@ export default class Gantt {
   }
 
   /**
+   * オプション設定
    *
-   * @param options
+   * @param {Options} options
    */
   setupOptions(options: Options): void {
     const defaultOptions: Options = {
@@ -219,8 +222,10 @@ export default class Gantt {
   }
 
   /**
+   * タスク設定
    *
-   * @param tasks
+   * @param {Task[]} tasks
+   * @memberof Gantt
    */
   setupTasks(tasks: Task[]): void {
     // prepare tasks
@@ -318,8 +323,9 @@ export default class Gantt {
   }
 
   /**
+   * 表示モード変更処理
    *
-   * @param mode
+   * @param {ViewMode} mode
    */
   changeViewMode(mode: ViewMode = this.options.viewMode): void {
     this.updateViewScale(mode);
@@ -330,8 +336,9 @@ export default class Gantt {
   }
 
   /**
+   * 表示モードによって、スケールを変更する
    *
-   * @param view_mode
+   * @param {ViewMode} view_mode
    */
   updateViewScale(view_mode: ViewMode): void {
     this.options.viewMode = view_mode;
@@ -452,7 +459,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * 描画処理
    */
   render(): void {
     this.clear();
@@ -489,7 +496,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * グリッド作成
    */
   makeGrid(): void {
     this.makeGridBackground();
@@ -501,7 +508,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * 背景作成
    */
   makeGridBackground(): void {
     const gridWidth = this.dates.length * this.options.columnWidth;
@@ -543,7 +550,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * 行生成
    */
   makeGridRows(): void {
     const rowsLayer = createSVG('g', { append_to: this.layers.grid });
@@ -599,7 +606,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * ヘッダー作成
    */
   makeGridHeader(): void {
     const headerWidth = this.dates.length * this.options.columnWidth;
@@ -676,7 +683,7 @@ export default class Gantt {
   }
 
   /**
-   *
+   * 当日の背景色
    */
   makeGridHighlights(): void {
     // highlight today's date
