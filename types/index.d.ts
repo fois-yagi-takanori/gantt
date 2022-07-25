@@ -140,6 +140,18 @@ export default class Gantt {
      *
      */
     makeDates(): void;
+    createColumValue(task: ResolvedTask, fieldName: string, x: number, posY: number, index: number): void;
+    /**
+     * 列の値を取得する。
+     * グループ対象のキーの場合は現在までのindexのなかで複数あればブランクを返却
+     *
+     * @param {ResolvedTask} task
+     * @param {string} fieldName
+     * @param {number} index
+     * @return {*}  {string}
+     * @memberof Gantt
+     */
+    getColumnValue(task: ResolvedTask, fieldName: string, index: number): string;
     /**
      *
      */

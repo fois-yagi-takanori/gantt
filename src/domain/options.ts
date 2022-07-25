@@ -18,6 +18,7 @@ export interface Options {
   language?: Language,
   columns: Column[],
   columnWidthForColumns?: number,
+  groupKey?: string,
   onClick?: (task: ResolvedTask) => void,
   onDateChange?: (task: ResolvedTask, startDate: Date, endDate: Date) => void,
   onProgressChange?: (task: ResolvedTask, progress: number) => void,
