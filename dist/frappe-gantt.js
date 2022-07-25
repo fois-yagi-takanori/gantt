@@ -568,7 +568,7 @@ var Gantt = (function (Split) {
          * @param gantt
          * @param task
          */
-        constructor(gantt, task) {
+        constructor(gantt, task, index) {
             this.prepareHelpers = () => {
                 /* eslint-disable func-names */
                 /**
@@ -610,6 +610,7 @@ var Gantt = (function (Split) {
                 }
                 return element;
             };
+            this.currentIndex = index;
             this.setDefaults(gantt, task);
             this.prepare();
             this.draw();
@@ -673,8 +674,8 @@ var Gantt = (function (Split) {
          */
         draw() {
             this.drawBar();
-            this.drawProgressBar();
             this.drawPlannedBar();
+            this.drawProgressBar();
             this.drawLabel();
             this.drawResizeHandles();
         }
@@ -684,7 +685,7 @@ var Gantt = (function (Split) {
         drawBar() {
             this.$bar = createSVG('rect', {
                 x: this.x,
-                y: this.y,
+                y: this.y + this.height,
                 width: this.width,
                 height: this.height,
                 rx: this.cornerRadius,
@@ -692,8 +693,8 @@ var Gantt = (function (Split) {
                 class: 'bar bar-actual',
                 append_to: this.barGroup,
             });
-            if (this.task.color) {
-                this.$bar.style.fill = this.task.color;
+            if (this.task.resultBarColor) {
+                this.$bar.style.fill = this.task.resultBarColor;
             }
             animateSVG(this.$bar, 'width', 0, this.width);
             if (this.invalid) {
@@ -714,12 +715,7 @@ var Gantt = (function (Split) {
                 class: 'bar planned',
                 append_to: this.barGroup,
             });
-            this.$plannedBar.style.fillOpacity = '0';
-            this.$plannedBar.style.strokeOpacity = '1';
-            this.$plannedBar.style.stroke = this.task.plannedColor || this.task.color;
-            this.$plannedBar.style.strokeDasharray = '2,2';
-            this.$plannedBar.style.strokeLinejoin = 'round';
-            this.$plannedBar.style.strokeWidth = '2px';
+            this.$plannedBar.style.fill = this.task.planColor;
             animateSVG(this.$plannedBar, 'width', 0, this.plannedWidth);
             if (this.invalid) {
                 this.$plannedBar.classList.add('bar-invalid');
@@ -733,7 +729,7 @@ var Gantt = (function (Split) {
                 return;
             this.$barProgress = createSVG('rect', {
                 x: this.x,
-                y: this.y,
+                y: this.y + this.height,
                 width: this.progressWidth,
                 height: this.height,
                 rx: this.cornerRadius,
@@ -746,12 +742,12 @@ var Gantt = (function (Split) {
             animateSVG(this.$barProgress, 'width', 0, this.progressWidth);
         }
         /**
-         *
+         * タスク名表示
          */
         drawLabel() {
             const text = createSVG('text', {
                 x: this.x + this.width / 2,
-                y: this.y + this.height / 2,
+                y: this.y + this.height / 2 + 20,
                 innerHTML: this.task.name,
                 class: 'bar-label',
                 append_to: this.barGroup,
@@ -967,7 +963,7 @@ var Gantt = (function (Split) {
         computeY() {
             return (this.gantt.options.headerHeight
                 + this.gantt.options.padding
-                + this.task.indexResolved * (this.height + this.gantt.options.padding));
+                + this.task.indexResolved * (this.height + this.gantt.options.padding + 20));
         }
         /**
          *
@@ -1552,19 +1548,19 @@ var Gantt = (function (Split) {
             const columnsRowsLayer = createSVG('g', { append_to: this.columnLayers.grid });
             const columnsLinesLayer = createSVG('g', { append_to: this.columnLayers.grid });
             const rowWidth = this.dates.length * this.options.columnWidth;
-            const rowHeight = this.options.barHeight + this.options.padding;
+            const rowHeight = this.options.barHeight + this.options.padding + 20;
             const columnRowWidth = this.options.columns.length * this.options.columnWidthForColumns;
             let rowY = this.options.headerHeight + this.options.padding / 2;
             this.tasks.forEach((task) => {
                 task.gridRow = createSVG('rect', {
                     x: 0,
-                    y: rowY,
+                    y: rowY + 20,
                     width: rowWidth,
                     height: rowHeight,
                     class: 'grid-row',
                     append_to: rowsLayer,
                 });
-                task.gridRow = createSVG('rect', {
+                createSVG('rect', {
                     x: 0,
                     y: rowY,
                     width: columnRowWidth,
@@ -1572,7 +1568,7 @@ var Gantt = (function (Split) {
                     class: 'grid-row',
                     append_to: columnsRowsLayer,
                 });
-                task.gridRow = createSVG('line', {
+                createSVG('line', {
                     x1: 0,
                     y1: rowY + rowHeight,
                     x2: rowWidth,
@@ -1580,7 +1576,7 @@ var Gantt = (function (Split) {
                     class: 'row-line',
                     append_to: linesLayer,
                 });
-                task.gridRow = createSVG('line', {
+                createSVG('line', {
                     x1: 0,
                     y1: rowY + rowHeight,
                     x2: columnRowWidth,
@@ -1588,7 +1584,7 @@ var Gantt = (function (Split) {
                     class: 'row-line',
                     append_to: columnsLinesLayer,
                 });
-                rowY += this.options.barHeight + this.options.padding;
+                rowY += this.options.barHeight + this.options.padding + 20;
             });
         }
         /**
@@ -1672,7 +1668,7 @@ var Gantt = (function (Split) {
                     * this.options.columnWidth;
                 const y = 0;
                 const width = this.options.columnWidth;
-                const height = (this.options.barHeight + this.options.padding)
+                const height = (this.options.barHeight + this.options.padding + 20)
                     * this.tasks.length
                     + this.options.headerHeight
                     + this.options.padding / 2;
@@ -1728,7 +1724,7 @@ var Gantt = (function (Split) {
                 const posY = 15
                     + this.options.headerHeight
                     + this.options.padding
-                    + task.indexResolved * (this.options.barHeight + this.options.padding);
+                    + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
                 x = 60;
                 this.options.columns.forEach((column) => {
                     createSVG('text', {
@@ -1830,9 +1826,11 @@ var Gantt = (function (Split) {
          *
          */
         makeBars() {
+            let i = 0;
             this.bars = this.tasks.map((task) => {
-                const bar = new Bar(this, task);
+                const bar = new Bar(this, task, i);
                 this.layers.bar.appendChild(bar.group);
+                i++;
                 return bar;
             });
         }

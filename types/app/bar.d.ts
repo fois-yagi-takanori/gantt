@@ -29,12 +29,13 @@ export default class Bar {
     $plannedBar?: SVGElement;
     private plannedWidth?;
     interactionTarget: 'planned' | 'main' | null;
+    currentIndex: number;
     /**
      *
      * @param gantt
      * @param task
      */
-    constructor(gantt: Gantt, task: ResolvedTask);
+    constructor(gantt: Gantt, task: ResolvedTask, index: number);
     /**
      *
      * @param gantt
@@ -67,7 +68,7 @@ export default class Bar {
      */
     drawProgressBar(): void;
     /**
-     *
+     * タスク名表示
      */
     drawLabel(): void;
     /**

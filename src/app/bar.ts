@@ -58,12 +58,15 @@ export default class Bar {
 
   interactionTarget: 'planned' | 'main' | null;
 
+  currentIndex: number;
+
   /**
    *
    * @param gantt
    * @param task
    */
-  constructor(gantt: Gantt, task: ResolvedTask) {
+  constructor(gantt: Gantt, task: ResolvedTask, index: number) {
+    this.currentIndex = index;
     this.setDefaults(gantt, task);
     this.prepare();
     this.draw();
@@ -168,8 +171,8 @@ export default class Bar {
    */
   draw(): void {
     this.drawBar();
-    this.drawProgressBar();
     this.drawPlannedBar();
+    this.drawProgressBar();
     this.drawLabel();
     this.drawResizeHandles();
   }
@@ -180,7 +183,7 @@ export default class Bar {
   drawBar(): void {
     this.$bar = createSVG('rect', {
       x: this.x,
-      y: this.y,
+      y: this.y + this.height,
       width: this.width,
       height: this.height,
       rx: this.cornerRadius,
@@ -189,8 +192,8 @@ export default class Bar {
       append_to: this.barGroup,
     });
 
-    if (this.task.color) {
-      this.$bar.style.fill = this.task.color;
+    if (this.task.resultBarColor) {
+      this.$bar.style.fill = this.task.resultBarColor;
     }
 
     animateSVG(this.$bar, 'width', 0, this.width);
@@ -215,12 +218,7 @@ export default class Bar {
       append_to: this.barGroup,
     });
 
-    this.$plannedBar.style.fillOpacity = '0';
-    this.$plannedBar.style.strokeOpacity = '1';
-    this.$plannedBar.style.stroke = this.task.plannedColor || this.task.color;
-    this.$plannedBar.style.strokeDasharray = '2,2';
-    this.$plannedBar.style.strokeLinejoin = 'round';
-    this.$plannedBar.style.strokeWidth = '2px';
+    this.$plannedBar.style.fill = this.task.planColor;
 
     animateSVG(this.$plannedBar, 'width', 0, this.plannedWidth);
 
@@ -236,7 +234,7 @@ export default class Bar {
     if (this.invalid) return;
     this.$barProgress = createSVG('rect', {
       x: this.x,
-      y: this.y,
+      y: this.y + this.height,
       width: this.progressWidth,
       height: this.height,
       rx: this.cornerRadius,
@@ -251,12 +249,12 @@ export default class Bar {
   }
 
   /**
-   *
+   * タスク名表示
    */
   drawLabel(): void {
     const text = createSVG('text', {
       x: this.x + this.width / 2,
-      y: this.y + this.height / 2,
+      y: this.y + this.height /2 + 20,
       innerHTML: this.task.name,
       class: 'bar-label',
       append_to: this.barGroup,
@@ -523,7 +521,7 @@ export default class Bar {
     return (
       this.gantt.options.headerHeight
       + this.gantt.options.padding
-      + this.task.indexResolved * (this.height + this.gantt.options.padding)
+      + this.task.indexResolved * (this.height + this.gantt.options.padding + 20)
     );
   }
 
