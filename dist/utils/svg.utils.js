@@ -74,11 +74,28 @@ function cubicBezier(name) {
     }[name];
 }
 /**
+ * 列のタイプに応じたSVGのタグを取得する
+ *
+ * @param {string} columnType
+ * @return {*}  {string}
+ */
+function getTag(columnType) {
+    switch (columnType) {
+        case 'label':
+            return 'text';
+        case 'select':
+            return 'svg';
+        default:
+            return columnType;
+    }
+}
+/**
  *
  * @param tag
  * @param attrs
  */
 export function createSVG(tag, attrs) {
+    tag = getTag(tag);
     const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
     Object.keys(attrs).forEach((attr) => {
         if (attr === 'append_to') {

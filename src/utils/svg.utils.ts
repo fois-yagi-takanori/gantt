@@ -93,7 +93,24 @@ function cubicBezier(name: 'ease' | 'linear' | 'ease-in' | 'ease-out' | 'ease-in
 }
 
 export type CreateSVGAttrs = Record<string, string | number | Element>
-& { append_to?: Element };
+  & { append_to?: Element };
+
+/**
+ * 列のタイプに応じたSVGのタグを取得する
+ *
+ * @param {string} columnType
+ * @return {*}  {string}
+ */
+function getTag(columnType: string): string {
+  switch (columnType) {
+    case 'label':
+      return 'text';
+    case 'select':
+      return 'svg';
+    default:
+      return columnType;
+  }
+}
 
 /**
  *
@@ -101,6 +118,7 @@ export type CreateSVGAttrs = Record<string, string | number | Element>
  * @param attrs
  */
 export function createSVG(tag: string, attrs: CreateSVGAttrs): SVGElement {
+  tag = getTag(tag);
   const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
   Object.keys(attrs).forEach((attr) => {
     if (attr === 'append_to') {

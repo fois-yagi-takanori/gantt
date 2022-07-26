@@ -690,9 +690,9 @@ export default class Gantt {
                 });
                 break;
             default:
-                createSVG('svg', {
-                    x: x - 35,
-                    y: posY - 15,
+                createSVG(column.columnType, {
+                    x: column.columnType === 'select' ? x - 35 : x,
+                    y: column.columnType === 'select' ? posY - 15 : posY,
                     // innerHTML: this.getColumnValue(task, column.fieldName, index),
                     innerHTML: htmlElement,
                     class: 'lower-text',

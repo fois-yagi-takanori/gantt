@@ -108,11 +108,28 @@ var Gantt = (function (Split) {
         }[name];
     }
     /**
+     * 列のタイプに応じたSVGのタグを取得する
+     *
+     * @param {string} columnType
+     * @return {*}  {string}
+     */
+    function getTag(columnType) {
+        switch (columnType) {
+            case 'label':
+                return 'text';
+            case 'select':
+                return 'svg';
+            default:
+                return columnType;
+        }
+    }
+    /**
      *
      * @param tag
      * @param attrs
      */
     function createSVG(tag, attrs) {
+        tag = getTag(tag);
         const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
         Object.keys(attrs).forEach((attr) => {
             if (attr === 'append_to') {
@@ -1827,9 +1844,9 @@ var Gantt = (function (Split) {
                     });
                     break;
                 default:
-                    createSVG('svg', {
-                        x: x - 35,
-                        y: posY - 15,
+                    createSVG(column.columnType, {
+                        x: column.columnType === 'select' ? x - 35 : x,
+                        y: column.columnType === 'select' ? posY - 15 : posY,
                         // innerHTML: this.getColumnValue(task, column.fieldName, index),
                         innerHTML: htmlElement,
                         class: 'lower-text',
