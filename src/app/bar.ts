@@ -1,5 +1,5 @@
 import { $, animateSVG, createSVG } from '../utils/svg.utils';
-import { ResolvedTask } from '../domain/resolvedTask';
+import { ResolvedTask } from '../model/resolvedTask';
 import Arrow from './arrow';
 import Gantt from '..';
 import dateUtils from '../utils/date.utils';

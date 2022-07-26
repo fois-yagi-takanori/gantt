@@ -1,4 +1,4 @@
-import { ResolvedTask } from '../domain/resolvedTask';
+import { ResolvedTask } from '../model/resolvedTask';
 import Arrow from './arrow';
 import Gantt from '..';
 /**

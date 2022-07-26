@@ -3,6 +3,7 @@ import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
+import SelectColumn from './model/column/selectColumn';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 const VIEW_MODE = {
@@ -625,13 +626,21 @@ export default class Gantt {
                 + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
             x = 60;
             this.options.columns.forEach((column) => {
-                this.createColumValue(task, column.fieldName, x, posY, index);
+                this.createColumValue(task, column, x, posY, index);
                 x += 120;
             });
         });
     }
-    createColumValue(task, fieldName, x, posY, index) {
-        switch (fieldName) {
+    createColumValue(task, column, x, posY, index) {
+        let htmlElement = '';
+        if (column.columnType === 'select') {
+            column.element = SelectColumn.createElement(column.options);
+            htmlElement = column.element.outerHTML;
+        }
+        else {
+            htmlElement = this.getColumnValue(task, column.fieldName, index);
+        }
+        switch (column.fieldName) {
             case 'startDate':
                 createSVG('text', {
                     x,
@@ -681,10 +690,11 @@ export default class Gantt {
                 });
                 break;
             default:
-                createSVG('text', {
-                    x,
-                    y: posY,
-                    innerHTML: this.getColumnValue(task, fieldName, index),
+                createSVG('svg', {
+                    x: x - 35,
+                    y: posY - 15,
+                    // innerHTML: this.getColumnValue(task, column.fieldName, index),
+                    innerHTML: htmlElement,
                     class: 'lower-text',
                     append_to: this.columnLayers.date,
                 });

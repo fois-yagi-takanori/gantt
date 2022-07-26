@@ -1115,6 +1115,34 @@ var Gantt = (function (Split) {
         }
     }
 
+    /**
+     * リストボックスカラム
+     *
+     * @export
+     * @class SelectColumn
+     * @implements {SelectColumnProps}
+     */
+    class SelectColumn {
+        constructor() {
+        }
+        static createElement(options) {
+            const parentElement = document.createElement('foreignObject');
+            const selectElement = document.createElement('select');
+            parentElement.setAttribute('width', '100');
+            parentElement.setAttribute('height', '100');
+            selectElement.classList.add('form-select');
+            options.forEach((selectOption) => {
+                const optionElement = document.createElement('option');
+                optionElement.text = selectOption.label;
+                optionElement.value = selectOption.value;
+                selectElement.options.add(optionElement);
+            });
+            parentElement.appendChild(selectElement);
+            return parentElement;
+        }
+        ;
+    }
+
     const VIEW_MODE = {
         QUARTER_DAY: 'Quarter Day',
         HALF_DAY: 'Half Day',
@@ -1735,13 +1763,21 @@ var Gantt = (function (Split) {
                     + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
                 x = 60;
                 this.options.columns.forEach((column) => {
-                    this.createColumValue(task, column.fieldName, x, posY, index);
+                    this.createColumValue(task, column, x, posY, index);
                     x += 120;
                 });
             });
         }
-        createColumValue(task, fieldName, x, posY, index) {
-            switch (fieldName) {
+        createColumValue(task, column, x, posY, index) {
+            let htmlElement = '';
+            if (column.columnType === 'select') {
+                column.element = SelectColumn.createElement(column.options);
+                htmlElement = column.element.outerHTML;
+            }
+            else {
+                htmlElement = this.getColumnValue(task, column.fieldName, index);
+            }
+            switch (column.fieldName) {
                 case 'startDate':
                     createSVG('text', {
                         x,
@@ -1791,10 +1827,11 @@ var Gantt = (function (Split) {
                     });
                     break;
                 default:
-                    createSVG('text', {
-                        x,
-                        y: posY,
-                        innerHTML: this.getColumnValue(task, fieldName, index),
+                    createSVG('svg', {
+                        x: x - 35,
+                        y: posY - 15,
+                        // innerHTML: this.getColumnValue(task, column.fieldName, index),
+                        innerHTML: htmlElement,
                         class: 'lower-text',
                         append_to: this.columnLayers.date,
                     });
