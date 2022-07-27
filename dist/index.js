@@ -633,12 +633,14 @@ export default class Gantt {
     }
     createColumValue(task, column, x, posY, index) {
         let htmlElement = '';
-        if (column.columnType === 'select') {
-            column.element = SelectColumn.createElement(column.options);
-            htmlElement = column.element.outerHTML;
-        }
-        else {
-            htmlElement = this.getColumnValue(task, column.fieldName, index);
+        switch (column.columnType) {
+            case 'select':
+                column.element = SelectColumn.createElement(column.options);
+                htmlElement = column.element.outerHTML;
+                break;
+            default:
+                htmlElement = this.getColumnValue(task, column.fieldName, index);
+                break;
         }
         switch (column.fieldName) {
             case 'startDate':
@@ -690,14 +692,7 @@ export default class Gantt {
                 });
                 break;
             default:
-                createSVG(column.columnType, {
-                    x: column.columnType === 'select' ? x - 35 : x,
-                    y: column.columnType === 'select' ? posY - 15 : posY,
-                    // innerHTML: this.getColumnValue(task, column.fieldName, index),
-                    innerHTML: htmlElement,
-                    class: 'lower-text',
-                    append_to: this.columnLayers.date,
-                });
+                createSVG(column.columnType, Object.assign({ x: column.columnType === 'select' ? x - 35 : x, y: column.columnType === 'select' ? posY - 15 : posY, innerHTML: htmlElement, class: 'lower-text', append_to: this.columnLayers.date }, column.attributes));
                 break;
         }
     }

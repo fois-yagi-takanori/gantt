@@ -4,6 +4,7 @@ import { Options } from './model/options';
 import { ResolvedTask } from './model/resolvedTask';
 import { Task } from './model/task';
 import Bar from './app/bar';
+import LabelColumn from './model/column/labelColumn';
 import SelectColumn from './model/column/selectColumn';
 export declare type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
 /**
@@ -141,7 +142,7 @@ export default class Gantt {
      *
      */
     makeDates(): void;
-    createColumValue(task: ResolvedTask, column: SelectColumn, x: number, posY: number, index: number): void;
+    createColumValue(task: ResolvedTask, column: SelectColumn | LabelColumn, x: number, posY: number, index: number): void;
     /**
      * 列の値を取得する。
      * グループ対象のキーの場合は現在までのindexのなかで複数あればブランクを返却

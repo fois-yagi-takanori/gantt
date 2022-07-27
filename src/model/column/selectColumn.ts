@@ -1,4 +1,5 @@
 import { ColumnType } from './column';
+import { CreateSVGAttrs } from '../../utils/svg.utils';
 import { SelectColumnProps } from './selectColumnProps';
 import { SelectOption } from './selectOption';
 
@@ -16,13 +17,13 @@ export default class SelectColumn implements SelectColumnProps {
   label: string;
   fieldName: string;
 
-  onSelectChange: () => void;
+  onChange?: () => void;
 
   static createElement(options: SelectOption[]): HTMLElement {
     const parentElement = document.createElement('foreignObject');
     const selectElement = document.createElement('select');
-    parentElement.setAttribute('width','100');
-    parentElement.setAttribute('height','100');
+    parentElement.setAttribute('width', '100');
+    parentElement.setAttribute('height', '100');
     selectElement.classList.add('form-select');
 
     options.forEach((selectOption: SelectOption) => {
@@ -40,4 +41,5 @@ export default class SelectColumn implements SelectColumnProps {
   constructor() {
 
   }
+  attributes: CreateSVGAttrs;
 }

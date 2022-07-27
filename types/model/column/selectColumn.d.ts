@@ -1,4 +1,5 @@
 import { ColumnType } from './column';
+import { CreateSVGAttrs } from '../../utils/svg.utils';
 import { SelectColumnProps } from './selectColumnProps';
 import { SelectOption } from './selectOption';
 /**
@@ -14,7 +15,8 @@ export default class SelectColumn implements SelectColumnProps {
     columnType: ColumnType;
     label: string;
     fieldName: string;
-    onSelectChange: () => void;
+    onChange?: () => void;
     static createElement(options: SelectOption[]): HTMLElement;
     constructor();
+    attributes: CreateSVGAttrs;
 }

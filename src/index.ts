@@ -7,6 +7,7 @@ import { ResolvedTask } from './model/resolvedTask';
 import { Task } from './model/task';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
+import LabelColumn from './model/column/labelColumn';
 import SelectColumn from './model/column/selectColumn';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
@@ -759,7 +760,7 @@ export default class Gantt {
         + this.options.padding
         + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
       x = 60;
-      this.options.columns.forEach((column) => {
+      this.options.columns.forEach((column: SelectColumn | LabelColumn) => {
         this.createColumValue(
           task,
           column,
@@ -774,19 +775,22 @@ export default class Gantt {
 
   createColumValue(
     task: ResolvedTask,
-    column: SelectColumn,
+    column: SelectColumn | LabelColumn,
     x: number,
     posY: number,
     index: number
   ): void {
     let htmlElement = '';
 
-    if (column.columnType === 'select') {
-      column.element = SelectColumn.createElement(column.options);
-      htmlElement = column.element.outerHTML;
-    }
-    else {
-      htmlElement = this.getColumnValue(task, column.fieldName, index);
+    switch (column.columnType) {
+      case 'select':
+        (column as SelectColumn).element = SelectColumn.createElement((column as SelectColumn).options);
+        htmlElement = (column as SelectColumn).element.outerHTML;
+        break;
+
+      default:
+        htmlElement = this.getColumnValue(task, column.fieldName, index);
+        break;
     }
 
     switch (column.fieldName) {
@@ -846,10 +850,10 @@ export default class Gantt {
         createSVG(column.columnType, {
           x: column.columnType === 'select' ? x - 35 : x,
           y: column.columnType === 'select' ? posY - 15 : posY,
-          // innerHTML: this.getColumnValue(task, column.fieldName, index),
           innerHTML: htmlElement,
           class: 'lower-text',
           append_to: this.columnLayers.date,
+          ...column.attributes
         });
         break;
     }

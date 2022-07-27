@@ -3,6 +3,6 @@ import { SelectOption } from './selectOption';
 
 export interface SelectColumnProps extends Column {
   options: SelectOption[],
-  onSelectChange: () => void
+  onChange?: () => void
 }
 

@@ -132,18 +132,24 @@ var Gantt = (function (Split) {
         tag = getTag(tag);
         const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
         Object.keys(attrs).forEach((attr) => {
-            if (attr === 'append_to') {
-                const parent = attrs.append_to;
-                parent.appendChild(elem);
-            }
-            else {
-                const val = attrs[attr];
-                if (attr === 'innerHTML') {
+            const val = attrs[attr];
+            switch (attr) {
+                case 'append_to':
+                    const parent = attrs.append_to;
+                    parent.appendChild(elem);
+                    break;
+                case 'fontSize':
+                    elem.setAttribute('font-size', val);
+                    break;
+                case 'innerHTML':
                     elem.innerHTML = val;
-                }
-                else {
+                    break;
+                case 'onChange':
+                    elem.onchange = attrs[attr];
+                    break;
+                default:
                     elem.setAttribute(attr, val);
-                }
+                    break;
             }
         });
         return elem;
@@ -1787,12 +1793,14 @@ var Gantt = (function (Split) {
         }
         createColumValue(task, column, x, posY, index) {
             let htmlElement = '';
-            if (column.columnType === 'select') {
-                column.element = SelectColumn.createElement(column.options);
-                htmlElement = column.element.outerHTML;
-            }
-            else {
-                htmlElement = this.getColumnValue(task, column.fieldName, index);
+            switch (column.columnType) {
+                case 'select':
+                    column.element = SelectColumn.createElement(column.options);
+                    htmlElement = column.element.outerHTML;
+                    break;
+                default:
+                    htmlElement = this.getColumnValue(task, column.fieldName, index);
+                    break;
             }
             switch (column.fieldName) {
                 case 'startDate':
@@ -1844,14 +1852,7 @@ var Gantt = (function (Split) {
                     });
                     break;
                 default:
-                    createSVG(column.columnType, {
-                        x: column.columnType === 'select' ? x - 35 : x,
-                        y: column.columnType === 'select' ? posY - 15 : posY,
-                        // innerHTML: this.getColumnValue(task, column.fieldName, index),
-                        innerHTML: htmlElement,
-                        class: 'lower-text',
-                        append_to: this.columnLayers.date,
-                    });
+                    createSVG(column.columnType, Object.assign({ x: column.columnType === 'select' ? x - 35 : x, y: column.columnType === 'select' ? posY - 15 : posY, innerHTML: htmlElement, class: 'lower-text', append_to: this.columnLayers.date }, column.attributes));
                     break;
             }
         }

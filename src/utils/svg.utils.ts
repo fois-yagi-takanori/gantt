@@ -121,16 +121,24 @@ export function createSVG(tag: string, attrs: CreateSVGAttrs): SVGElement {
   tag = getTag(tag);
   const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
   Object.keys(attrs).forEach((attr) => {
-    if (attr === 'append_to') {
-      const parent = attrs.append_to;
-      parent.appendChild(elem);
-    } else {
-      const val = attrs[attr] as string;
-      if (attr === 'innerHTML') {
+    const val = attrs[attr] as string;
+    switch (attr) {
+      case 'append_to':
+        const parent = attrs.append_to;
+        parent.appendChild(elem);
+        break;
+      case 'fontSize':
+        elem.setAttribute('font-size', val);
+        break;
+      case 'innerHTML':
         elem.innerHTML = val;
-      } else {
+        break;
+      case 'onChange':
+        elem.onchange = attrs[attr] as any;
+        break;
+      default:
         elem.setAttribute(attr, val);
-      }
+        break;
     }
   });
 
