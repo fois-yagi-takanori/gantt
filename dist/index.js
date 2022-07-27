@@ -3,6 +3,7 @@ import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
+import SelectColumn from './model/column/selectColumn';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 const VIEW_MODE = {
@@ -625,13 +626,23 @@ export default class Gantt {
                 + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
             x = 60;
             this.options.columns.forEach((column) => {
-                this.createColumValue(task, column.fieldName, x, posY, index);
+                this.createColumValue(task, column, x, posY, index);
                 x += 120;
             });
         });
     }
-    createColumValue(task, fieldName, x, posY, index) {
-        switch (fieldName) {
+    createColumValue(task, column, x, posY, index) {
+        let htmlElement = '';
+        switch (column.columnType) {
+            case 'select':
+                column.element = SelectColumn.createElement(column.options);
+                htmlElement = column.element.outerHTML;
+                break;
+            default:
+                htmlElement = this.getColumnValue(task, column.fieldName, index);
+                break;
+        }
+        switch (column.fieldName) {
             case 'startDate':
                 createSVG('text', {
                     x,
@@ -681,13 +692,7 @@ export default class Gantt {
                 });
                 break;
             default:
-                createSVG('text', {
-                    x,
-                    y: posY,
-                    innerHTML: this.getColumnValue(task, fieldName, index),
-                    class: 'lower-text',
-                    append_to: this.columnLayers.date,
-                });
+                createSVG(column.columnType, Object.assign({ x: column.columnType === 'select' ? x - 35 : x, y: column.columnType === 'select' ? posY - 15 : posY, innerHTML: htmlElement, class: 'lower-text', append_to: this.columnLayers.date }, column.attributes));
                 break;
         }
     }

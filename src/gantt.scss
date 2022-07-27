@@ -125,9 +125,6 @@ $column-width: 300px;
 	.upper-text {
 		fill: $text-light;
 	}
-	.lower-text {
-		fill: $text-color;
-	}
 
 	.hide {
 		display: none;
@@ -136,11 +133,8 @@ $column-width: 300px;
 
 .gantt-container {
   display: inline;
-  // position: absolute;
-  // left:351px;
   overflow: auto;
   font-size: 12px;
-  // width: 1000px;
 
 	.popup-wrapper {
 		position: absolute;

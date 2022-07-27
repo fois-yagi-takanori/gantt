@@ -1,7 +1,8 @@
-import { Column } from './column';
 import { Language } from '../utils/date.utils';
 import { ResolvedTask } from './resolvedTask';
 import { ViewMode } from '..';
+import LabelColumn from './column/labelColumn';
+import SelectColumn from './column/selectColumn';
 
 export interface Options {
   headerHeight?: number,
@@ -16,7 +17,7 @@ export interface Options {
   dateFormat?: string,
   customPopupHtml?: string | null,
   language?: Language,
-  columns: Column[],
+  columns: SelectColumn[] | LabelColumn[],
   columnWidthForColumns?: number,
   groupKey?: string,
   onClick?: (task: ResolvedTask) => void,

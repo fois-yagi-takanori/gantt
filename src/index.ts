@@ -1,16 +1,16 @@
 import '../src/gantt.scss';
 import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
-import { Column } from './domain/column';
-import { DateInfo } from './domain/dateInfo';
-import { Options } from './domain/options';
-import { ResolvedTask } from './domain/resolvedTask';
-import { Task } from './domain/task';
+import { DateInfo } from './model/dateInfo';
+import { Options } from './model/options';
+import { ResolvedTask } from './model/resolvedTask';
+import { Task } from './model/task';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
+import LabelColumn from './model/column/labelColumn';
+import SelectColumn from './model/column/selectColumn';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
-
 export type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
 
 const VIEW_MODE: {
@@ -215,7 +215,7 @@ export default class Gantt {
       dateFormat: 'YYYY-MM-DD',
       customPopupHtml: null,
       language: 'ja',
-      columns: new Array<Column>(),
+      columns: new Array<SelectColumn>(),
       columnWidthForColumns: 120,
     };
     this.options = { ...defaultOptions, ...options };
@@ -760,10 +760,10 @@ export default class Gantt {
         + this.options.padding
         + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
       x = 60;
-      this.options.columns.forEach((column) => {
+      this.options.columns.forEach((column: SelectColumn | LabelColumn) => {
         this.createColumValue(
           task,
-          column.fieldName,
+          column,
           x,
           posY,
           index
@@ -775,12 +775,25 @@ export default class Gantt {
 
   createColumValue(
     task: ResolvedTask,
-    fieldName: string,
+    column: SelectColumn | LabelColumn,
     x: number,
     posY: number,
     index: number
   ): void {
-    switch (fieldName) {
+    let htmlElement = '';
+
+    switch (column.columnType) {
+      case 'select':
+        (column as SelectColumn).element = SelectColumn.createElement((column as SelectColumn).options);
+        htmlElement = (column as SelectColumn).element.outerHTML;
+        break;
+
+      default:
+        htmlElement = this.getColumnValue(task, column.fieldName, index);
+        break;
+    }
+
+    switch (column.fieldName) {
       case 'startDate':
         createSVG('text', {
           x,
@@ -834,12 +847,13 @@ export default class Gantt {
 
         break;
       default:
-        createSVG('text', {
-          x,
-          y: posY,
-          innerHTML: this.getColumnValue(task, fieldName, index),
+        createSVG(column.columnType, {
+          x: column.columnType === 'select' ? x - 35 : x,
+          y: column.columnType === 'select' ? posY - 15 : posY,
+          innerHTML: htmlElement,
           class: 'lower-text',
           append_to: this.columnLayers.date,
+          ...column.attributes
         });
         break;
     }

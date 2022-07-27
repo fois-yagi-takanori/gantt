@@ -108,25 +108,48 @@ var Gantt = (function (Split) {
         }[name];
     }
     /**
+     * 列のタイプに応じたSVGのタグを取得する
+     *
+     * @param {string} columnType
+     * @return {*}  {string}
+     */
+    function getTag(columnType) {
+        switch (columnType) {
+            case 'label':
+                return 'text';
+            case 'select':
+                return 'svg';
+            default:
+                return columnType;
+        }
+    }
+    /**
      *
      * @param tag
      * @param attrs
      */
     function createSVG(tag, attrs) {
+        tag = getTag(tag);
         const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
         Object.keys(attrs).forEach((attr) => {
-            if (attr === 'append_to') {
-                const parent = attrs.append_to;
-                parent.appendChild(elem);
-            }
-            else {
-                const val = attrs[attr];
-                if (attr === 'innerHTML') {
+            const val = attrs[attr];
+            switch (attr) {
+                case 'append_to':
+                    const parent = attrs.append_to;
+                    parent.appendChild(elem);
+                    break;
+                case 'fontSize':
+                    elem.setAttribute('font-size', val);
+                    break;
+                case 'innerHTML':
                     elem.innerHTML = val;
-                }
-                else {
+                    break;
+                case 'onChange':
+                    elem.onchange = attrs[attr];
+                    break;
+                default:
                     elem.setAttribute(attr, val);
-                }
+                    break;
             }
         });
         return elem;
@@ -1115,6 +1138,34 @@ var Gantt = (function (Split) {
         }
     }
 
+    /**
+     * リストボックスカラム
+     *
+     * @export
+     * @class SelectColumn
+     * @implements {SelectColumnProps}
+     */
+    class SelectColumn {
+        constructor() {
+        }
+        static createElement(options) {
+            const parentElement = document.createElement('foreignObject');
+            const selectElement = document.createElement('select');
+            parentElement.setAttribute('width', '100');
+            parentElement.setAttribute('height', '100');
+            selectElement.classList.add('form-select');
+            options.forEach((selectOption) => {
+                const optionElement = document.createElement('option');
+                optionElement.text = selectOption.label;
+                optionElement.value = selectOption.value;
+                selectElement.options.add(optionElement);
+            });
+            parentElement.appendChild(selectElement);
+            return parentElement;
+        }
+        ;
+    }
+
     const VIEW_MODE = {
         QUARTER_DAY: 'Quarter Day',
         HALF_DAY: 'Half Day',
@@ -1735,13 +1786,23 @@ var Gantt = (function (Split) {
                     + task.indexResolved * (this.options.barHeight + this.options.padding + 20);
                 x = 60;
                 this.options.columns.forEach((column) => {
-                    this.createColumValue(task, column.fieldName, x, posY, index);
+                    this.createColumValue(task, column, x, posY, index);
                     x += 120;
                 });
             });
         }
-        createColumValue(task, fieldName, x, posY, index) {
-            switch (fieldName) {
+        createColumValue(task, column, x, posY, index) {
+            let htmlElement = '';
+            switch (column.columnType) {
+                case 'select':
+                    column.element = SelectColumn.createElement(column.options);
+                    htmlElement = column.element.outerHTML;
+                    break;
+                default:
+                    htmlElement = this.getColumnValue(task, column.fieldName, index);
+                    break;
+            }
+            switch (column.fieldName) {
                 case 'startDate':
                     createSVG('text', {
                         x,
@@ -1791,13 +1852,7 @@ var Gantt = (function (Split) {
                     });
                     break;
                 default:
-                    createSVG('text', {
-                        x,
-                        y: posY,
-                        innerHTML: this.getColumnValue(task, fieldName, index),
-                        class: 'lower-text',
-                        append_to: this.columnLayers.date,
-                    });
+                    createSVG(column.columnType, Object.assign({ x: column.columnType === 'select' ? x - 35 : x, y: column.columnType === 'select' ? posY - 15 : posY, innerHTML: htmlElement, class: 'lower-text', append_to: this.columnLayers.date }, column.attributes));
                     break;
             }
         }

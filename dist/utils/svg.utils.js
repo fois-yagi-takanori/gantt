@@ -74,25 +74,48 @@ function cubicBezier(name) {
     }[name];
 }
 /**
+ * 列のタイプに応じたSVGのタグを取得する
+ *
+ * @param {string} columnType
+ * @return {*}  {string}
+ */
+function getTag(columnType) {
+    switch (columnType) {
+        case 'label':
+            return 'text';
+        case 'select':
+            return 'svg';
+        default:
+            return columnType;
+    }
+}
+/**
  *
  * @param tag
  * @param attrs
  */
 export function createSVG(tag, attrs) {
+    tag = getTag(tag);
     const elem = document.createElementNS('http://www.w3.org/2000/svg', tag);
     Object.keys(attrs).forEach((attr) => {
-        if (attr === 'append_to') {
-            const parent = attrs.append_to;
-            parent.appendChild(elem);
-        }
-        else {
-            const val = attrs[attr];
-            if (attr === 'innerHTML') {
+        const val = attrs[attr];
+        switch (attr) {
+            case 'append_to':
+                const parent = attrs.append_to;
+                parent.appendChild(elem);
+                break;
+            case 'fontSize':
+                elem.setAttribute('font-size', val);
+                break;
+            case 'innerHTML':
                 elem.innerHTML = val;
-            }
-            else {
+                break;
+            case 'onChange':
+                elem.onchange = attrs[attr];
+                break;
+            default:
                 elem.setAttribute(attr, val);
-            }
+                break;
         }
     });
     return elem;

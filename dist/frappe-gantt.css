@@ -95,9 +95,6 @@
 .gantt .upper-text {
   fill: #555;
 }
-.gantt .lower-text {
-  fill: #333;
-}
 .gantt .hide {
   display: none;
 }
