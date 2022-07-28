@@ -1,11 +1,11 @@
 import '../src/gantt.scss';
 import { DateInfo } from './model/dateInfo';
+import { LabelColumn } from './model/column/labelColumn';
 import { Options } from './model/options';
 import { ResolvedTask } from './model/resolvedTask';
+import { SelectColumn } from './model/column/selectColumn';
 import { Task } from './model/task';
 import Bar from './app/bar';
-import LabelColumn from './model/column/labelColumn';
-import SelectColumn from './model/column/selectColumn';
 export declare type ViewMode = 'Quarter Day' | 'Half Day' | 'Day' | 'Week' | 'Month' | 'Year';
 /**
  *

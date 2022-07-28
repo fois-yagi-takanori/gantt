@@ -1,8 +1,8 @@
+import { LabelColumn } from './column/labelColumn';
 import { Language } from '../utils/date.utils';
 import { ResolvedTask } from './resolvedTask';
+import { SelectColumn } from './column/selectColumn';
 import { ViewMode } from '..';
-import LabelColumn from './column/labelColumn';
-import SelectColumn from './column/selectColumn';
 export interface Options {
     headerHeight?: number;
     columnWidth?: number;

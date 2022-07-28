@@ -8,10 +8,10 @@ import { LabelColumnProps } from './labelColumnProps';
  * @class LabelColumn
  * @implements {LabelColumnProps}
  */
-export default class LabelColumn implements LabelColumnProps {
+export declare class LabelColumn implements LabelColumnProps {
     onClick?: () => void;
     columnType: ColumnType;
     label: string;
     fieldName: string;
-    attributes: CreateSVGAttrs;
+    attributes?: CreateSVGAttrs;
 }

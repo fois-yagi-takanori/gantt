@@ -3,6 +3,6 @@ export interface Column {
     columnType: ColumnType;
     label: string;
     fieldName: string;
-    attributes: CreateSVGAttrs;
+    attributes?: CreateSVGAttrs;
 }
 export declare type ColumnType = 'label' | 'select' | 'text' | 'calendar';

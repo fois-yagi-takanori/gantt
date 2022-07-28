@@ -10,7 +10,7 @@ import { SelectOption } from './selectOption';
  * @class SelectColumn
  * @implements {SelectColumnProps}
  */
-export default class SelectColumn implements SelectColumnProps {
+export class SelectColumn implements SelectColumnProps {
   element?: HTMLElement;
   options?: SelectOption[];
   columnType: ColumnType;

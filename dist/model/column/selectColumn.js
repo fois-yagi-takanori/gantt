@@ -5,7 +5,7 @@
  * @class SelectColumn
  * @implements {SelectColumnProps}
  */
-export default class SelectColumn {
+export class SelectColumn {
     constructor() {
     }
     static createElement(options) {

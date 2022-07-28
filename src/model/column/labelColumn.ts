@@ -9,7 +9,7 @@ import { LabelColumnProps } from './labelColumnProps';
  * @class LabelColumn
  * @implements {LabelColumnProps}
  */
-export default class LabelColumn implements LabelColumnProps {
+export class LabelColumn implements LabelColumnProps {
   onClick?: () => void;
   columnType: ColumnType;
   label: string;

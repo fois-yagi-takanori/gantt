@@ -9,9 +9,9 @@ import { SelectOption } from './selectOption';
  * @class SelectColumn
  * @implements {SelectColumnProps}
  */
-export default class SelectColumn implements SelectColumnProps {
-    element: HTMLElement;
-    options: SelectOption[];
+export declare class SelectColumn implements SelectColumnProps {
+    element?: HTMLElement;
+    options?: SelectOption[];
     columnType: ColumnType;
     label: string;
     fieldName: string;

@@ -5,6 +5,6 @@
  * @class LabelColumn
  * @implements {LabelColumnProps}
  */
-export default class LabelColumn {
+export class LabelColumn {
 }
 //# sourceMappingURL=labelColumn.js.map

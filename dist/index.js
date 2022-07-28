@@ -1,9 +1,9 @@
 import '../src/gantt.scss';
 import * as stringUtils from './utils/string.utils';
 import { $, createSVG } from './utils/svg.utils';
+import { SelectColumn } from './model/column/selectColumn';
 import Arrow from './app/arrow';
 import Bar from './app/bar';
-import SelectColumn from './model/column/selectColumn';
 import Split from 'split-grid';
 import dateUtils from './utils/date.utils';
 const VIEW_MODE = {
