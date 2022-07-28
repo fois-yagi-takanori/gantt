@@ -11,8 +11,8 @@ import { SelectOption } from './selectOption';
  * @implements {SelectColumnProps}
  */
 export default class SelectColumn implements SelectColumnProps {
-  element: HTMLElement;
-  options: SelectOption[];
+  element?: HTMLElement;
+  options?: SelectOption[];
   columnType: ColumnType;
   label: string;
   fieldName: string;

@@ -14,5 +14,5 @@ export default class LabelColumn implements LabelColumnProps {
   columnType: ColumnType;
   label: string;
   fieldName: string;
-  attributes: CreateSVGAttrs
+  attributes?: CreateSVGAttrs
 }

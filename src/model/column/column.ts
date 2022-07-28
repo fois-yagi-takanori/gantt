@@ -4,7 +4,7 @@ export interface Column {
   columnType: ColumnType,
   label: string,
   fieldName: string,
-  attributes: CreateSVGAttrs
+  attributes?: CreateSVGAttrs
 }
 
 export type ColumnType = 'label' | 'select' | 'text' | 'calendar'
