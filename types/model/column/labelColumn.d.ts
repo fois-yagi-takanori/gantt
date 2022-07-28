@@ -14,4 +14,5 @@ export declare class LabelColumn implements LabelColumnProps {
     label: string;
     fieldName: string;
     attributes?: CreateSVGAttrs;
+    constructor();
 }

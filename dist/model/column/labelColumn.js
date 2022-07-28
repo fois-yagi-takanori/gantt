@@ -6,5 +6,7 @@
  * @implements {LabelColumnProps}
  */
 export class LabelColumn {
+    constructor() {
+    }
 }
 //# sourceMappingURL=labelColumn.js.map
